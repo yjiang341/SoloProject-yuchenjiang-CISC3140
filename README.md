@@ -4,7 +4,7 @@
 
 ### Game type
 
-Simple word-based RPG game
+Simple text-based RPG game
 
 ### Description
 
