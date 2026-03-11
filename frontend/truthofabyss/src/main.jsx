@@ -3,8 +3,24 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
+const myElement = (
+    <table>
+        <tbody>
+        <tr>
+            <th>Name</th>
+        </tr>
+        <tr>
+            <td>John</td>
+        </tr>
+        <tr>
+            <td>Elsa</td>
+        </tr>
+        </tbody>
+    </table>
+);
+
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+    <StrictMode>
+        <App />
+    </StrictMode>
 )
