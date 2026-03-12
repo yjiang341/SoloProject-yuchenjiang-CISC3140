@@ -1,0 +1,47 @@
+.general-btn {
+    display: inline-block;
+    margin: 15px;
+    padding: 10px 24px;
+    font-size: 16px;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-radius: 20px;
+    border: none;
+    background-color: rgba(255, 255, 253, 0.05);
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.general-btn:hover {
+    background-color: #2b90cd;
+    transform: translateY(-2px);
+}
+
+.general-btn:active {
+    transform: scale(0.95);
+}
+
+.close-btn {
+    display: inline-block;
+    margin: 15px;
+    padding: 10px 24px;
+    font-size: 16px;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-radius: 20px;
+    border: none;
+    background-color: rgb(32, 32, 32);
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.close-btn:hover {
+    background-color: #757575;
+    transform: translateY(-2px);
+}
+
+.close-btn:active {
+    transform: scale(0.95);
+}

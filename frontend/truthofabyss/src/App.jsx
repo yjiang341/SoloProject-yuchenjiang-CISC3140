@@ -1,5 +1,5 @@
 import './App.css'
-import Navbar from "./components/Navbar";
+import Navbar from "./components/Navbar/Navbar.jsx";
 import { useState, useEffect } from 'react';
 
 function App() {
@@ -26,10 +26,7 @@ function App() {
     return (
         <>
             <Navbar />
-            <div className="App">
-                <h1>Hello there!</h1>
-            </div>
-            <div className="logo">Click Me!</div>
+            <h1>Welcome to my Page :)</h1>
         </>
     );
 }
