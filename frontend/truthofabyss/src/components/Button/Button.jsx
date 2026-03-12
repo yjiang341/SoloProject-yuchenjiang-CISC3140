@@ -1,15 +1,17 @@
 import "./Button.css";
 import { handleClick } from "./ButtonLogic";
 
-function Button() {
+function Button(props) {
     return (
         <button
             className="general-btn"
-            onClick={handleClick}
+            onClick={(handleClick)}
         >
-            Click Me!
+            {props.children}
         </button>
     );
 }
+
+//<Button>Click me</Button>
 
 export default Button;

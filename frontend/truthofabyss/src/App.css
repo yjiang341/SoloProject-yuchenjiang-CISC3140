@@ -1,3 +1,13 @@
+h1 {
+  margin: 0;
+  text-align: center;
+  text-shadow: 2px 2px 3px rgba(255, 255, 255, 0.3);
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  font-size: 3vw;
+  color: #ffffff;
+  animation: fadeIn 0.8s ease-in-out;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -33,10 +43,27 @@
   }
 }
 
-.card {
-  padding: 2em;
+.uniformContainer {
+  display: inline-block;
+  width: fit-content;
+  height: fit-content;
+  margin: 20px auto;
+  padding: 20px;
+
+  background-color: rgba(131, 129, 129, 0.05);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 2px solid #6e6e6e;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.read-the-docs {
-  color: #888;
+.generalText{
+  margin: 0;
+  text-align: center;
+  text-shadow: 2px 2px 3px rgba(105, 107, 108, 0.3);
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  font-size: 20px;
+  color: #000;
+  animation: fadeIn 0.8s ease-in-out;
 }

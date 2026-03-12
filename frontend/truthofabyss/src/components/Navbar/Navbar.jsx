@@ -1,11 +1,12 @@
 import "./Navbar.css";
-import Button from "../Button/Button";
+import Buttons from "../Button/Button.jsx";
 
 function Navbar() {
     return (
-        <nav>
-            <h2>My Game</h2>
-            <Button />
+        <nav className="navbar">
+            <Buttons>My Game</Buttons>
+            <Buttons> Story </Buttons>
+            <Buttons> About me </Buttons>
         </nav>
     );
 }
