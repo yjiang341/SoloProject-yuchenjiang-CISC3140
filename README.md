@@ -23,6 +23,6 @@ Can you survive the trials ahead and uncover the truth behind the mysterious aby
 - **React**
 - **nodemon**
 - **PostgreSQL**
-- **Next.js**
+- **Vite.js**
 - **Express.js**
 - **More...**
