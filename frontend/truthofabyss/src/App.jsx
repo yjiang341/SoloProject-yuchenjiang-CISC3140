@@ -31,7 +31,10 @@ function App() {
             <div className={"uniformContainer"}>
                 <Navbar />
             </div>
-            <Buttons> Click Me!</Buttons>
+            <p className={"generalText"}>Try click the button below: </p>
+            <div className={"uniformContainer"}>
+                <Buttons> Click Me!</Buttons>
+            </div>
         </>
     );
 }
