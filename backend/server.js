@@ -3,12 +3,12 @@ const cors = require("cors");
 require("dotenv").config();
 const app = express();
 
-//*** middle ware ***
+// *** middle ware ***
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-//*** Fetching data from database/APIs ***
+// *** Fetching data from database/APIs ***
 app.get("/", async (req, res) => {
     try {
         const data = await fetch(
