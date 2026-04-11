@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import '@/styles/SignUpPage.css'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -24,8 +25,7 @@ export default function SignUpPage() {
       email,
       password,
       options: {
-        emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? 
-          `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: {
           username,
         },
@@ -42,10 +42,10 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-secondary/20 via-background to-background" />
+    <div className="signup-page">
+      <div className="signup-bg-gradient" />
       
-      <Card className="w-full max-w-md relative z-10 border-border/50 bg-card/80 backdrop-blur">
+      <Card className="signup-card">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-heading text-primary">Join the Abyss</CardTitle>
           <CardDescription className="text-muted-foreground">
@@ -56,7 +56,7 @@ export default function SignUpPage() {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {error && (
-              <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
+              <div className="signup-error">
                 {error}
               </div>
             )}
@@ -115,7 +115,7 @@ export default function SignUpPage() {
             
             <p className="text-sm text-muted-foreground text-center">
               Already have an account?{' '}
-              <Link to="/auth/login" className="text-primary hover:underline">
+              <Link to="/auth/login" className="signup-link">
                 Sign in
               </Link>
             </p>

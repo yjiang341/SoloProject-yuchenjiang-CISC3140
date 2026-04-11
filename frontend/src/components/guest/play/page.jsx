@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
@@ -188,8 +188,8 @@ export default function GuestPlayPage() {
             <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
             <h2 className="text-xl font-heading mb-2">No Character Found</h2>
             <p className="text-muted-foreground mb-4">Create a character to begin your adventure.</p>
-            <Button asChild>
-              <Link to="/guest/create">Create Character</Link>
+            <Button onClick={() => navigate('/guest/create')}>
+              Create Character
             </Button>
           </CardContent>
         </Card>
@@ -203,10 +203,8 @@ export default function GuestPlayPage() {
       <header className="sticky top-0 z-50 bg-card/90 backdrop-blur border-b border-border">
         <div className="flex items-center justify-between p-4 max-w-6xl mx-auto">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+              <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
               <h1 className="font-heading text-primary">{character.name}</h1>

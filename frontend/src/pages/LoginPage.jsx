@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
+import '@/styles/LoginPage.css'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -30,15 +31,14 @@ export default function LoginPage() {
       return
     }
 
-    navigate('/game')
-    router.refresh()
+    navigate('/')
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-secondary/20 via-background to-background" />
+    <div className="login-page">
+      <div className="login-bg-gradient" />
       
-      <Card className="w-full max-w-md relative z-10 border-border/50 bg-card/80 backdrop-blur">
+      <Card className="login-card">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-heading text-primary">Truth of Abyss</CardTitle>
           <CardDescription className="text-muted-foreground">
@@ -49,7 +49,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {error && (
-              <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
+              <div className="login-error">
                 {error}
               </div>
             )}
@@ -92,7 +92,7 @@ export default function LoginPage() {
             
             <p className="text-sm text-muted-foreground text-center">
               New to the Abyss?{' '}
-              <Link to="/auth/sign-up" className="text-primary hover:underline">
+              <Link to="/auth/sign-up" className="login-link">
                 Create an account
               </Link>
             </p>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase/client'
 import { getUserCharacters, deleteCharacter } from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Plus, Trash2, Play, Sword, Shield, Heart, User } from 'lucide-react'
+import '@/styles/CharacterSelectPage.css'
 
 export default function CharacterSelectPage() {
   const navigate = useNavigate()
@@ -42,7 +43,7 @@ export default function CharacterSelectPage() {
     }
     
     loadCharacters()
-  }, [router])
+  }, [navigate])
 
   async function handleDelete() {
     if (!deleteTarget) return
@@ -58,9 +59,9 @@ export default function CharacterSelectPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="character-select-loading">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="character-select-spinner" />
           <p className="text-muted-foreground">Loading your champions...</p>
         </div>
       </div>
@@ -68,30 +69,32 @@ export default function CharacterSelectPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-secondary/30 via-background to-background" />
+    <div className="character-select-page">
+      <div className="character-select-bg-gradient" />
       
-      <div className="max-w-4xl mx-auto relative z-10">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-heading text-primary mb-2">Choose Your Champion</h1>
-          <p className="text-muted-foreground">Select a character to continue your journey</p>
+      <div className="character-select-content">
+        <div className="character-select-header">
+          <h1 className="character-select-title">Choose Your Champion</h1>
+          <p className="character-select-subtitle">Select a character to continue your journey</p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        {characters.length > 0 && (
+        <div className="character-select-grid">
           {/* Create New Character Card */}
-          <Link to="/character/create">
-            <Card className="h-full border-dashed border-2 border-border hover:border-primary/50 transition-colors cursor-pointer bg-card/50">
-              <CardContent className="flex flex-col items-center justify-center h-full min-h-[200px] text-center">
-                <Plus className="w-12 h-12 text-muted-foreground mb-4" />
-                <CardTitle className="text-xl mb-2">Create New Character</CardTitle>
-                <CardDescription>Begin a new adventure in the Abyss</CardDescription>
-              </CardContent>
-            </Card>
-          </Link>
+          <Card 
+            className="character-select-create-card"
+            onClick={() => navigate('/character/create')}
+          >
+            <CardContent className="character-select-create-content">
+              <Plus className="character-select-create-icon" />
+              <CardTitle className="text-xl mb-2">Create New Character</CardTitle>
+              <CardDescription>Begin a new adventure in the Abyss</CardDescription>
+            </CardContent>
+          </Card>
 
           {/* Existing Characters */}
           {characters.map(char => (
-            <Card key={char.id} className="border-border/50 bg-card/80 backdrop-blur hover:border-primary/30 transition-colors">
+            <Card key={char.id} className="character-select-char-card">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div>
@@ -111,7 +114,7 @@ export default function CharacterSelectPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-4 gap-2 mb-4 text-sm">
+                <div className="character-select-char-stats">
                   <div className="flex items-center gap-1">
                     <Heart className="w-4 h-4 text-health" />
                     <span>{char.hp}/{char.max_hp}</span>
@@ -143,17 +146,46 @@ export default function CharacterSelectPage() {
             </Card>
           ))}
         </div>
+        )}
 
         {characters.length === 0 && (
-          <p className="text-center text-muted-foreground mt-8">
-            You have no characters yet. Create one to begin your adventure!
-          </p>
+          <div className="character-select-empty">
+            <Card 
+              className="character-select-empty-card"
+              onClick={() => navigate('/character/create')}
+            >
+              <CardContent className="character-select-create-content">
+                <Plus className="character-select-create-icon" />
+                <CardTitle className="text-xl mb-2">Create New Character</CardTitle>
+                <CardDescription>Begin a new adventure in the Abyss</CardDescription>
+              </CardContent>
+            </Card>
+            <Card className="character-select-empty-msg">
+              <CardContent className="character-select-empty-msg-content">
+                <User className="character-select-empty-icon" />
+                <CardTitle className="text-xl mb-2">No Characters Yet</CardTitle>
+                <CardDescription>
+                  You haven't created any characters. Create your first hero to begin your adventure in the Abyss!
+                </CardDescription>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {/* Back to menu */}
-        <div className="text-center mt-8">
-          <Button variant="outline" asChild>
-            <Link to="/">Return to Main Menu</Link>
+        <div className="character-select-actions">
+          <Button variant="outline" onClick={() => navigate('/')}>
+            Return to Main Menu
+          </Button>
+          <Button 
+            variant="ghost" 
+            className="text-muted-foreground"
+            onClick={async () => {
+              await supabase.auth.signOut()
+              navigate('/')
+            }}
+          >
+            Sign Out
           </Button>
         </div>
       </div>

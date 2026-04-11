@@ -1,0 +1,26 @@
+/* SignUpPage - External stylesheet for sign-up page */
+@reference "./globals.css";
+
+.signup-page {
+  @apply min-h-screen flex items-center justify-center bg-background p-4;
+}
+
+.signup-bg-gradient {
+  @apply absolute inset-0;
+  background: radial-gradient(ellipse at center, var(--tw-gradient-stops));
+  --tw-gradient-from: var(--secondary) / 0.2;
+  --tw-gradient-via: var(--background);
+  --tw-gradient-to: var(--background);
+}
+
+.signup-card {
+  @apply w-full max-w-md relative z-10 border-border/50 bg-card/80 backdrop-blur;
+}
+
+.signup-error {
+  @apply p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md;
+}
+
+.signup-link {
+  @apply text-primary hover:underline;
+}

@@ -1,22 +1,24 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import '@/styles/ErrorPage.css'
 
 export default function AuthErrorPage() {
+  const navigate = useNavigate()
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="max-w-md w-full px-6 text-center">
-        <div className="mb-8">
-          <h1 className="text-3xl font-heading text-primary mb-2">Authentication Failed</h1>
-          <p className="text-muted-foreground">
+    <div className="error-page">
+      <div className="error-content">
+        <div className="error-header">
+          <h1 className="error-title">Authentication Failed</h1>
+          <p className="error-description">
             Something went wrong during authentication. The dark forces may have interfered with your passage.
           </p>
         </div>
-        <div className="flex flex-col gap-4">
-          <Button asChild variant="default">
-            <Link to="/auth/login">Try Again</Link>
+        <div className="error-actions">
+          <Button variant="default" onClick={() => navigate('/auth/login')}>
+            Try Again
           </Button>
-          <Button asChild variant="outline">
-            <Link to="/">Return to the Surface</Link>
+          <Button variant="outline" onClick={() => navigate('/')}>
+            Return to the Surface
           </Button>
         </div>
       </div>

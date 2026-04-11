@@ -18,6 +18,7 @@ import CombatPanel from '@/components/game/combat-panel'
 import InventoryPanel from '@/components/game/inventory-panel'
 import { Button } from '@/components/ui/button'
 import { Menu, X } from 'lucide-react'
+import '@/styles/GamePage.css'
 
 // Fallback events (from backend services config)
 const fallbackEvents = {
@@ -116,7 +117,7 @@ function GameContent() {
     }
     
     initialize()
-  }, [characterId, saveId, router])
+  }, [characterId, saveId, navigate])
 
   // Game timer
   useEffect(() => {
@@ -297,9 +298,9 @@ function GameContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="game-loading">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="game-spinner" />
           <p className="text-muted-foreground">Entering the Abyss...</p>
         </div>
       </div>
@@ -307,12 +308,12 @@ function GameContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="game-page">
       {/* Mobile sidebar toggle */}
       <Button
         variant="ghost"
         size="icon"
-        className="fixed top-4 left-4 z-50 lg:hidden"
+        className="game-sidebar-toggle"
         onClick={() => setSidebarOpen(!sidebarOpen)}
       >
         {sidebarOpen ? <X /> : <Menu />}
@@ -329,19 +330,19 @@ function GameContent() {
       />
 
       {/* Main content */}
-      <main className="flex-1 lg:ml-80">
-        <div className="max-w-4xl mx-auto p-4 lg:p-8">
+      <main className="game-main">
+        <div className="game-main-content">
           {/* Messages */}
           {messages.length > 0 && (
-            <div className="mb-4 space-y-2">
+            <div className="game-messages">
               {messages.slice(-5).map(msg => (
                 <div
                   key={msg.id}
-                  className={`p-3 rounded-lg text-sm animate-in slide-in-from-top ${
-                    msg.type === 'success' ? 'bg-success/20 text-success' :
-                    msg.type === 'error' ? 'bg-destructive/20 text-destructive' :
-                    msg.type === 'warning' ? 'bg-accent/20 text-accent' :
-                    'bg-muted text-muted-foreground'
+                  className={`game-message ${
+                    msg.type === 'success' ? 'game-message--success' :
+                    msg.type === 'error' ? 'game-message--error' :
+                    msg.type === 'warning' ? 'game-message--warning' :
+                    'game-message--info'
                   }`}
                 >
                   {msg.text}
@@ -388,9 +389,9 @@ function GameContent() {
 export default function GamePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="game-loading">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="game-spinner" />
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>

@@ -1,0 +1,26 @@
+/* ErrorPage - External stylesheet for error page */
+@reference "./globals.css";
+
+.error-page {
+  @apply min-h-screen flex items-center justify-center bg-background;
+}
+
+.error-content {
+  @apply max-w-md w-full px-6 text-center;
+}
+
+.error-header {
+  @apply mb-8;
+}
+
+.error-title {
+  @apply text-3xl font-heading text-primary mb-2;
+}
+
+.error-description {
+  @apply text-muted-foreground;
+}
+
+.error-actions {
+  @apply flex flex-col gap-4;
+}

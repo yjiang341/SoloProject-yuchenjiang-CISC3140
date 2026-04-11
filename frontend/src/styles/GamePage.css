@@ -1,0 +1,52 @@
+/* GamePage - External stylesheet for game page */
+@reference "./globals.css";
+
+.game-page {
+  @apply min-h-screen bg-background flex;
+}
+
+.game-sidebar-toggle {
+  @apply fixed top-4 left-4 z-50 lg:hidden;
+}
+
+.game-main {
+  @apply flex-1 lg:ml-80;
+}
+
+.game-main-content {
+  @apply max-w-4xl mx-auto p-4 lg:p-8;
+}
+
+/* Messages */
+.game-messages {
+  @apply mb-4 space-y-2;
+}
+
+.game-message {
+  @apply p-3 rounded-lg text-sm;
+}
+
+.game-message--success {
+  @apply bg-success/20 text-success;
+}
+
+.game-message--error {
+  @apply bg-destructive/20 text-destructive;
+}
+
+.game-message--warning {
+  @apply bg-accent/20 text-accent;
+}
+
+.game-message--info {
+  @apply bg-muted text-muted-foreground;
+}
+
+/* Loading */
+.game-loading {
+  @apply min-h-screen flex items-center justify-center bg-background;
+}
+
+.game-spinner {
+  @apply w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4;
+}

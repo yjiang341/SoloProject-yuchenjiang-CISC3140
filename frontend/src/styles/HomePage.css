@@ -1,140 +1,117 @@
-/* Truth of Abyss - Dark Gothic Fantasy Theme */
-:root {
-  /* Dark mode by default for gothic atmosphere */
-  --background: oklch(0.12 0.01 280);
-  --foreground: oklch(0.92 0.02 60);
-  --card: oklch(0.15 0.015 280);
-  --card-foreground: oklch(0.92 0.02 60);
-  --popover: oklch(0.13 0.012 280);
-  --popover-foreground: oklch(0.92 0.02 60);
-  /* Crimson accent for blood/danger */
-  --primary: oklch(0.55 0.22 25);
-  --primary-foreground: oklch(0.98 0 0);
-  /* Muted purple for mystery */
-  --secondary: oklch(0.25 0.04 280);
-  --secondary-foreground: oklch(0.88 0.02 60);
-  --muted: oklch(0.20 0.02 280);
-  --muted-foreground: oklch(0.65 0.02 60);
-  /* Gold accent for rewards/achievements */
-  --accent: oklch(0.75 0.15 85);
-  --accent-foreground: oklch(0.15 0 0);
-  /* Blood red for damage/danger */
-  --destructive: oklch(0.50 0.25 25);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.28 0.03 280);
-  --input: oklch(0.18 0.02 280);
-  --ring: oklch(0.55 0.22 25);
-  /* Chart colors for stats */
-  --chart-1: oklch(0.55 0.22 25);
-  --chart-2: oklch(0.60 0.15 280);
-  --chart-3: oklch(0.75 0.15 85);
-  --chart-4: oklch(0.55 0.18 150);
-  --chart-5: oklch(0.65 0.12 200);
-  --radius: 0.5rem;
-  /* Sidebar - darker dungeon aesthetic */
-  --sidebar: oklch(0.10 0.015 280);
-  --sidebar-foreground: oklch(0.88 0.02 60);
-  --sidebar-primary: oklch(0.55 0.22 25);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.20 0.03 280);
-  --sidebar-accent-foreground: oklch(0.88 0.02 60);
-  --sidebar-border: oklch(0.25 0.025 280);
-  --sidebar-ring: oklch(0.55 0.22 25);
-  /* Custom game colors */
-  --health: oklch(0.55 0.20 140);
-  --mana: oklch(0.55 0.20 260);
-  --experience: oklch(0.70 0.18 85);
-  --success: oklch(0.60 0.18 145);
+/* HomePage - Dark Gothic Fantasy Theme */
+@reference "./globals.css";
+
+/* Page layout */
+.home-page {
+  @apply min-h-screen bg-background relative overflow-hidden;
 }
 
-.dark {
-  --background: oklch(0.10 0.012 280);
-  --foreground: oklch(0.92 0.02 60);
-  --card: oklch(0.13 0.015 280);
-  --card-foreground: oklch(0.92 0.02 60);
-  --popover: oklch(0.11 0.012 280);
-  --popover-foreground: oklch(0.92 0.02 60);
-  --primary: oklch(0.58 0.24 25);
-  --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.22 0.035 280);
-  --secondary-foreground: oklch(0.88 0.02 60);
-  --muted: oklch(0.18 0.02 280);
-  --muted-foreground: oklch(0.60 0.02 60);
-  --accent: oklch(0.72 0.14 85);
-  --accent-foreground: oklch(0.12 0 0);
-  --destructive: oklch(0.48 0.24 25);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.25 0.025 280);
-  --input: oklch(0.16 0.018 280);
-  --ring: oklch(0.58 0.24 25);
-  --chart-1: oklch(0.58 0.24 25);
-  --chart-2: oklch(0.58 0.16 280);
-  --chart-3: oklch(0.72 0.14 85);
-  --chart-4: oklch(0.52 0.16 150);
-  --chart-5: oklch(0.62 0.10 200);
-  --sidebar: oklch(0.08 0.012 280);
-  --sidebar-foreground: oklch(0.88 0.02 60);
-  --sidebar-primary: oklch(0.58 0.24 25);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.18 0.025 280);
-  --sidebar-accent-foreground: oklch(0.88 0.02 60);
-  --sidebar-border: oklch(0.22 0.02 280);
-  --sidebar-ring: oklch(0.58 0.24 25);
+.home-bg-gradient {
+  @apply absolute inset-0;
+  background: radial-gradient(ellipse at top, var(--tw-gradient-stops));
+  --tw-gradient-from: var(--secondary) / 0.4;
+  --tw-gradient-via: var(--background);
+  --tw-gradient-to: var(--background);
 }
 
-@theme inline {
-  --font-sans: var(--font-body), 'Crimson Text', Georgia, serif;
-  --font-serif: var(--font-body), 'Crimson Text', Georgia, serif;
-  --font-heading: var(--font-heading), 'Cinzel', 'Times New Roman', serif;
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
-  /* Custom game colors */
-  --color-health: var(--health);
-  --color-mana: var(--mana);
-  --color-experience: var(--experience);
-  --color-success: var(--success);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+.home-bg-pattern {
+  @apply absolute inset-0 opacity-50;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMyMjIiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAzMHYySDI0di0yaDEyem0wLTR2Mkg0djJoMTJ6Ii8+PC9nPjwvZz48L3N2Zz4=');
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+.home-content {
+  @apply relative z-10 min-h-screen flex flex-col items-center justify-center p-4;
+}
+
+/* Title section */
+.home-title-section {
+  @apply text-center mb-12;
+}
+
+.home-title {
+  @apply text-6xl md:text-8xl font-heading text-primary mb-4 tracking-wider;
+}
+
+.home-subtitle {
+  @apply text-xl md:text-2xl text-muted-foreground max-w-xl mx-auto;
+}
+
+.home-tagline {
+  @apply text-sm text-muted-foreground/70 mt-2;
+}
+
+/* Menu */
+.home-menu {
+  @apply w-full max-w-md space-y-4;
+}
+
+.home-loading {
+  @apply text-center py-8;
+}
+
+.home-spinner {
+  @apply w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto;
+}
+
+.home-menu-btn {
+  @apply w-full text-lg h-14;
+}
+
+.home-menu-btn-signout {
+  @apply w-full text-lg h-14 text-muted-foreground;
+}
+
+/* Divider */
+.home-divider {
+  @apply relative my-4;
+}
+
+.home-divider-line {
+  @apply absolute inset-0 flex items-center;
+}
+
+.home-divider-border {
+  @apply w-full border-t border-border/50;
+}
+
+.home-divider-text-wrapper {
+  @apply relative flex justify-center text-xs uppercase;
+}
+
+.home-divider-text {
+  @apply bg-background px-2 text-muted-foreground;
+}
+
+.home-guest-note {
+  @apply text-xs text-center text-muted-foreground mt-2;
+}
+
+/* Features */
+.home-features {
+  @apply mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl;
+}
+
+.home-feature {
+  @apply text-center;
+}
+
+.home-feature-icon {
+  @apply w-12 h-12 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center;
+}
+
+.home-feature-icon svg {
+  @apply w-6 h-6 text-primary;
+}
+
+.home-feature-title {
+  @apply font-heading text-lg mb-2;
+}
+
+.home-feature-desc {
+  @apply text-sm text-muted-foreground;
+}
+
+/* Footer */
+.home-footer {
+  @apply absolute bottom-4 text-center text-sm text-muted-foreground/50;
 }

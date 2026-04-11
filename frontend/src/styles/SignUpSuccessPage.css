@@ -1,0 +1,26 @@
+/* SignUpSuccessPage - External stylesheet for sign-up success page */
+@reference "./globals.css";
+
+.signup-success-page {
+  @apply min-h-screen flex items-center justify-center bg-background p-4;
+}
+
+.signup-success-bg-gradient {
+  @apply absolute inset-0;
+  background: radial-gradient(ellipse at center, var(--tw-gradient-stops));
+  --tw-gradient-from: var(--secondary) / 0.2;
+  --tw-gradient-via: var(--background);
+  --tw-gradient-to: var(--background);
+}
+
+.signup-success-card {
+  @apply w-full max-w-md relative z-10 border-border/50 bg-card/80 backdrop-blur text-center;
+}
+
+.signup-success-icon-wrapper {
+  @apply mx-auto w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4;
+}
+
+.signup-success-icon-wrapper svg {
+  @apply w-8 h-8 text-primary;
+}

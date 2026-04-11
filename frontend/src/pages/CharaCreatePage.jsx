@@ -13,6 +13,7 @@ import {
   formatModifier,
 } from '@/lib/api'
 import { ChevronLeft, ChevronRight, Sword, Shield, Heart, Sparkles } from 'lucide-react'
+import '@/styles/CharaCreatePage.css'
 
 const RACES = [
   { index: 'human', name: 'Human', description: 'Versatile and adaptable, humans gain +1 to all stats.' },
@@ -87,7 +88,7 @@ export default function CreateCharacterPage() {
     }
 
     initialize()
-  }, [router])
+  }, [navigate])
 
   function assignStat(stat, value) {
     // If stat already has a value, return it to available
@@ -159,23 +160,21 @@ export default function CreateCharacterPage() {
   const getLocalFormatModifier = (modifier) => modifier >= 0 ? `+${modifier}` : `${modifier}`
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-secondary/30 via-background to-background" />
+    <div className="chara-create-page">
+      <div className="chara-create-bg-gradient" />
       
-      <div className="max-w-2xl mx-auto relative z-10">
+      <div className="chara-create-content">
         {/* Progress indicator */}
-        <div className="flex items-center justify-center gap-2 mb-8">
+        <div className="chara-create-progress">
           {[1, 2, 3, 4, 5].map(s => (
             <div
               key={s}
-              className={`h-2 w-12 rounded-full transition-colors ${
-                s <= step ? 'bg-primary' : 'bg-muted'
-              }`}
+              className={`chara-create-progress-step ${s <= step ? 'chara-create-progress-step--active' : 'chara-create-progress-step--inactive'}`}
             />
           ))}
         </div>
 
-        <Card className="border-border/50 bg-card/80 backdrop-blur">
+        <Card className="chara-create-card">
           {/* Step 1: Name */}
           {step === 1 && (
             <>
@@ -212,14 +211,12 @@ export default function CreateCharacterPage() {
                     <button
                       key={race.index}
                       onClick={() => setCharacter(prev => ({ ...prev, race: race.index }))}
-                      className={`p-4 rounded-lg border text-left transition-all ${
-                        character.race === race.index
-                          ? 'border-primary bg-primary/10'
-                          : 'border-border hover:border-primary/50 hover:bg-muted/50'
+                      className={`chara-create-option ${
+                        character.race === race.index ? 'chara-create-option--selected' : ''
                       }`}
                     >
-                      <div className="font-medium">{race.name}</div>
-                      <div className="text-sm text-muted-foreground">{race.description}</div>
+                      <div className="chara-create-option-name">{race.name}</div>
+                      <div className="chara-create-option-desc">{race.description}</div>
                     </button>
                   ))}
                 </div>
@@ -240,14 +237,12 @@ export default function CreateCharacterPage() {
                     <button
                       key={cls.index}
                       onClick={() => setCharacter(prev => ({ ...prev, class: cls.index }))}
-                      className={`p-4 rounded-lg border text-left transition-all ${
-                        character.class === cls.index
-                          ? 'border-primary bg-primary/10'
-                          : 'border-border hover:border-primary/50 hover:bg-muted/50'
+                      className={`chara-create-option ${
+                        character.class === cls.index ? 'chara-create-option--selected' : ''
                       }`}
                     >
-                      <div className="font-medium">{cls.name}</div>
-                      <div className="text-sm text-muted-foreground">{cls.description}</div>
+                      <div className="chara-create-option-name">{cls.name}</div>
+                      <div className="chara-create-option-desc">{cls.description}</div>
                     </button>
                   ))}
                 </div>
@@ -264,10 +259,10 @@ export default function CreateCharacterPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Available points */}
-                <div className="flex flex-wrap gap-2 justify-center p-3 bg-muted/30 rounded-lg">
+                <div className="chara-create-available-points">
                   <span className="text-sm text-muted-foreground mr-2">Available:</span>
                   {availablePoints.map((point, i) => (
-                    <span key={i} className="px-3 py-1 bg-primary/20 text-primary rounded font-mono">
+                    <span key={i} className="chara-create-stat-badge">
                       {point}
                     </span>
                   ))}
@@ -284,8 +279,8 @@ export default function CreateCharacterPage() {
                     const modifier = getLocalAbilityModifier(finalValue)
                     
                     return (
-                      <div key={stat} className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
-                        <div className="w-28 capitalize font-medium">{stat}</div>
+                      <div key={stat} className="chara-create-stat-row">
+                        <div className="chara-create-stat-name">{stat}</div>
                         <Select
                           value={assignedStats[stat]?.toString() || ''}
                           onValueChange={(value) => assignStat(stat, parseInt(value))}
@@ -337,13 +332,13 @@ export default function CreateCharacterPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 {error && (
-                  <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
+                  <div className="chara-create-error">
                     {error}
                   </div>
                 )}
 
                 <div className="text-center">
-                  <h3 className="text-3xl font-heading text-primary">{character.name}</h3>
+                  <h3 className="chara-create-review-name">{character.name}</h3>
                   <p className="text-muted-foreground">
                     {selectedRace?.name} {selectedClass?.name}
                   </p>
@@ -389,7 +384,7 @@ export default function CreateCharacterPage() {
           )}
 
           {/* Navigation */}
-          <div className="flex justify-between p-6 pt-0">
+          <div className="chara-create-nav">
             <Button
               variant="outline"
               onClick={() => setStep(s => s - 1)}

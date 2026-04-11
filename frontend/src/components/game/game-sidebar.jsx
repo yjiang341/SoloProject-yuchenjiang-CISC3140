@@ -1,4 +1,4 @@
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -168,11 +168,9 @@ export default function GameSidebar({
               <Package className="w-4 h-4 mr-2" />
               Inventory ({inventory.length})
             </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/character">
-                <Home className="w-4 h-4 mr-2" />
-                Character Select
-              </Link>
+            <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/character')}>
+              <Home className="w-4 h-4 mr-2" />
+              Character Select
             </Button>
             <Button 
               variant="ghost" 

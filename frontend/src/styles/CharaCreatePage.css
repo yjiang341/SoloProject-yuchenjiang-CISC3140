@@ -1,0 +1,87 @@
+/* CharaCreatePage - External stylesheet for character creation page */
+@reference "./globals.css";
+
+.chara-create-page {
+  @apply min-h-screen bg-background p-4 flex flex-col items-center justify-center;
+}
+
+.chara-create-bg-gradient {
+  @apply absolute inset-0;
+  background: radial-gradient(ellipse at top, var(--tw-gradient-stops));
+  --tw-gradient-from: var(--secondary) / 0.3;
+  --tw-gradient-via: var(--background);
+  --tw-gradient-to: var(--background);
+}
+
+.chara-create-content {
+  @apply max-w-2xl w-full mx-auto relative z-10;
+}
+
+/* Progress indicator */
+.chara-create-progress {
+  @apply flex items-center justify-center gap-2 mb-8;
+}
+
+.chara-create-progress-step {
+  @apply h-2 w-12 rounded-full transition-colors;
+}
+
+.chara-create-progress-step--active {
+  @apply bg-primary;
+}
+
+.chara-create-progress-step--inactive {
+  @apply bg-muted;
+}
+
+.chara-create-card {
+  @apply border-border/50 bg-card/80 backdrop-blur;
+}
+
+/* Race/Class selection buttons */
+.chara-create-option {
+  @apply p-4 rounded-lg border text-left transition-all border-border hover:border-primary/50 hover:bg-muted/50;
+}
+
+.chara-create-option--selected {
+  @apply border-primary bg-primary/10;
+}
+
+.chara-create-option-name {
+  @apply font-medium;
+}
+
+.chara-create-option-desc {
+  @apply text-sm text-muted-foreground;
+}
+
+/* Stat assignment */
+.chara-create-available-points {
+  @apply flex flex-wrap gap-2 justify-center p-3 bg-muted/30 rounded-lg;
+}
+
+.chara-create-stat-badge {
+  @apply px-3 py-1 bg-primary/20 text-primary rounded font-mono;
+}
+
+.chara-create-stat-row {
+  @apply flex items-center gap-3 p-3 bg-muted/20 rounded-lg;
+}
+
+.chara-create-stat-name {
+  @apply w-28 capitalize font-medium;
+}
+
+/* Review step */
+.chara-create-review-name {
+  @apply text-3xl font-heading text-primary;
+}
+
+.chara-create-error {
+  @apply p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md;
+}
+
+/* Navigation */
+.chara-create-nav {
+  @apply flex justify-between p-6 pt-0;
+}

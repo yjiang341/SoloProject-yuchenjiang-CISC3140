@@ -1,0 +1,91 @@
+/* CharacterSelectPage - External stylesheet for character select page */
+@reference "./globals.css";
+
+.character-select-page {
+  @apply min-h-screen bg-background p-4;
+}
+
+.character-select-bg-gradient {
+  @apply absolute inset-0;
+  background: radial-gradient(ellipse at top, var(--tw-gradient-stops));
+  --tw-gradient-from: var(--secondary) / 0.3;
+  --tw-gradient-via: var(--background);
+  --tw-gradient-to: var(--background);
+}
+
+.character-select-content {
+  @apply max-w-4xl mx-auto relative z-10;
+}
+
+.character-select-header {
+  @apply text-center mb-8;
+}
+
+.character-select-title {
+  @apply text-4xl font-heading text-primary mb-2;
+}
+
+.character-select-subtitle {
+  @apply text-muted-foreground;
+}
+
+.character-select-grid {
+  @apply grid gap-4 md:grid-cols-2;
+}
+
+/* Create new character card */
+.character-select-create-card {
+  @apply h-full border-dashed border-2 border-border hover:border-primary/50 transition-colors cursor-pointer bg-card/50;
+}
+
+.character-select-create-content {
+  @apply flex flex-col items-center justify-center h-full min-h-[200px] text-center;
+}
+
+.character-select-create-icon {
+  @apply w-12 h-12 text-muted-foreground mb-4;
+}
+
+/* Character card */
+.character-select-char-card {
+  @apply border-border/50 bg-card/80 backdrop-blur hover:border-primary/30 transition-colors;
+}
+
+.character-select-char-stats {
+  @apply grid grid-cols-4 gap-2 mb-4 text-sm;
+}
+
+/* Empty state */
+.character-select-empty {
+  @apply flex flex-col items-center mt-8;
+}
+
+.character-select-empty-card {
+  @apply w-full max-w-md border-dashed border-2 border-border hover:border-primary/50 transition-colors cursor-pointer bg-card/50;
+}
+
+.character-select-empty-msg {
+  @apply mt-6 w-full max-w-md border-border/50 bg-card/80 backdrop-blur;
+}
+
+.character-select-empty-msg-content {
+  @apply flex flex-col items-center text-center py-8;
+}
+
+.character-select-empty-icon {
+  @apply w-16 h-16 text-muted-foreground mb-4;
+}
+
+/* Footer actions */
+.character-select-actions {
+  @apply text-center mt-8 space-x-4;
+}
+
+/* Loading */
+.character-select-loading {
+  @apply min-h-screen flex items-center justify-center bg-background;
+}
+
+.character-select-spinner {
+  @apply w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4;
+}

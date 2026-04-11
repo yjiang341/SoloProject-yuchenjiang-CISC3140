@@ -1,17 +1,19 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
+import '@/styles/SignUpSuccessPage.css'
 import { Mail } from 'lucide-react'
 
 export default function SignUpSuccessPage() {
+  const navigate = useNavigate()
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-secondary/20 via-background to-background" />
+    <div className="signup-success-page">
+      <div className="signup-success-bg-gradient" />
       
-      <Card className="w-full max-w-md relative z-10 border-border/50 bg-card/80 backdrop-blur text-center">
+      <Card className="signup-success-card">
         <CardHeader>
-          <div className="mx-auto w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-4">
-            <Mail className="w-8 h-8 text-primary" />
+          <div className="signup-success-icon-wrapper">
+            <Mail />
           </div>
           <CardTitle className="text-2xl font-heading text-primary">Check Your Email</CardTitle>
           <CardDescription className="text-muted-foreground">
@@ -27,8 +29,8 @@ export default function SignUpSuccessPage() {
         </CardContent>
         
         <CardFooter className="flex flex-col gap-4">
-          <Button asChild variant="outline" className="w-full">
-            <Link to="/auth/login">Return to Login</Link>
+          <Button variant="outline" className="w-full" onClick={() => navigate('/auth/login')}>
+            Return to Login
           </Button>
         </CardFooter>
       </Card>
