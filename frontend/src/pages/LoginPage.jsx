@@ -1,27 +1,24 @@
-'use client'
-
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { createClient } from '@/backend/supabase/client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { useNavigate, Link } from 'react-router-dom'
+import { supabase } from '@/lib/supabase/client'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  const navigate = useNavigate()
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError(null)
     setLoading(true)
 
-    const supabase = createClient()
+    // supabase instance already imported at top
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -33,7 +30,7 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/game')
+    navigate('/game')
     router.refresh()
   }
 
@@ -95,7 +92,7 @@ export default function LoginPage() {
             
             <p className="text-sm text-muted-foreground text-center">
               New to the Abyss?{' '}
-              <Link href="/auth/sign-up" className="text-primary hover:underline">
+              <Link to="/auth/sign-up" className="text-primary hover:underline">
                 Create an account
               </Link>
             </p>

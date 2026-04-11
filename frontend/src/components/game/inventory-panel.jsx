@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from 'frontend/components/ui/card'
-import { Button } from 'frontend/components/ui/button'
-import { Badge } from 'frontend/components/ui/badge'
-import { toggleEquipItem, removeItemFromInventory } from 'backend/services/character-service'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { toggleEquipItem, removeItemFromInventory } from '@/lib/api'
 import { Package, Sword, Shield, Sparkles, X, Check } from 'lucide-react'
 
 const ITEM_TYPE_ICONS = {
@@ -20,7 +20,7 @@ export default function InventoryPanel({ inventory, character, onInventoryUpdate
   async function handleEquip(item) {
     setLoading(item.id)
     try {
-      const updated = await toggleEquipItem(item.id, !item.is_equipped)
+      const updated = await toggleEquipItem(character.id, item.id, !item.is_equipped)
       onInventoryUpdate(prev => prev.map(i => i.id === item.id ? updated : i))
     } catch (err) {
       console.error('Failed to equip item:', err)
@@ -33,7 +33,7 @@ export default function InventoryPanel({ inventory, character, onInventoryUpdate
     
     setLoading(item.id)
     try {
-      await removeItemFromInventory(item.id)
+      await removeItemFromInventory(character.id, item.id)
       onInventoryUpdate(prev => prev.filter(i => i.id !== item.id))
     } catch (err) {
       console.error('Failed to drop item:', err)

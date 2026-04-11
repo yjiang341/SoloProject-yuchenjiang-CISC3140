@@ -1,6 +1,4 @@
-'use client'
-
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 
 export default function AuthErrorPage() {
@@ -15,10 +13,10 @@ export default function AuthErrorPage() {
         </div>
         <div className="flex flex-col gap-4">
           <Button asChild variant="default">
-            <Link href="/auth/login">Try Again</Link>
+            <Link to="/auth/login">Try Again</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href="/frontend/public">Return to the Surface</Link>
+            <Link to="/">Return to the Surface</Link>
           </Button>
         </div>
       </div>

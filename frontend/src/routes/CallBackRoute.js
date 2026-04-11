@@ -1,5 +1,6 @@
-import { createClient } from 'backend/supabase/server'
-import { NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase/client'
+// Callback route component (remove Next.js dependency)
+import React from 'react'
 
 export async function GET(request) {
   const { searchParams, origin } = new URL(request.url)
@@ -7,7 +8,7 @@ export async function GET(request) {
   const next = searchParams.get('next') ?? '/game'
 
   if (code) {
-    const supabase = await createClient()
+    // supabase instance already imported at top
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`)

@@ -1,66 +1,47 @@
-# Configuration Directory
+# Config
 
-This directory contains all configuration files for the Truth of Abyss game.
+Central game configuration and static data.
 
-## Files
+## `game-config.js`
 
-### game-config.js
+Uses ES6 `export` syntax. Contains both configuration constants and static game data used by backend services and (via copies) by the frontend guest mode.
 
-Central configuration file containing:
+### Configuration Objects
 
-- **CHARACTER_CONFIG**: Character creation settings
-  - Attribute ranges (min, max, default)
-  - Level progression settings
-  - Starting resources (gold, HP, MP)
+| Export              | Purpose                                              |
+|---------------------|------------------------------------------------------|
+| `CHARACTER_CONFIG`  | Attribute ranges, level progression, starting resources |
+| `COMBAT_CONFIG`     | Dice types, critical hit/fumble thresholds            |
+| `DND_API_CONFIG`    | D&D 5e API base URL and cache TTL                     |
+| `EVENT_CONFIG`      | Event types, DC presets, starting event ID             |
+| `UI_CONFIG`         | Animation durations, auto-save interval                |
 
-- **COMBAT_CONFIG**: Combat system settings
-  - Dice configurations (D4, D6, D8, etc.)
-  - Critical hit thresholds and multipliers
-  - Fumble thresholds
+### Static Game Data
 
-- **DND_API_CONFIG**: D&D 5e SRD API settings
-  - Base URL and endpoints
-  - Cache duration settings
+| Export             | Purpose                                     |
+|--------------------|---------------------------------------------|
+| `RACES`            | 9 playable races with ability bonuses       |
+| `CLASSES`          | 12 classes with hit die, spellcaster flag   |
+| `STAT_NAMES`       | 6 ability scores with key/name/abbreviation |
+| `BASE_STATS`       | Default stat values (all 10)                |
+| `EVENTS_DATA`      | Full branching story event tree for guest mode |
 
-- **EVENT_CONFIG**: Event system settings
-  - Event types (story, combat, shop, etc.)
-  - Difficulty class presets
-  - Starting event ID
+### Helper Functions
 
-- **UI_CONFIG**: UI behavior settings
-  - Animation durations
-  - Auto-save intervals
-  - Toast notification settings
+| Export                  | Purpose                         |
+|-------------------------|---------------------------------|
+| `calculateModifier(score)` | D&D 5e ability modifier      |
+| `calculateXPForLevel(level)` | XP needed to level up      |
+| `rollDice(notation)`    | Parse and roll `"2d6+3"` style  |
+| `rollD20()`             | Quick d20 roll                  |
 
-## Usage
+### Game Balance
 
-```javascript
-import { 
-  CHARACTER_CONFIG, 
-  COMBAT_CONFIG, 
-  calculateModifier 
-} from '@/lib/config/game-config'
+To adjust balance, edit the config objects. No code changes needed elsewhere:
 
-// Use configuration values
-const maxLevel = CHARACTER_CONFIG.LEVELS.MAX_LEVEL
-
-// Use helper functions
-const strModifier = calculateModifier(16) // Returns +3
-```
-
-## Modifying Game Balance
-
-To adjust game balance:
-
-1. Edit the relevant configuration object
-2. Test changes in development
-3. No code changes required in other files
-
-### Common Adjustments
-
-| Setting | Location | Default |
-|---------|----------|---------|
-| Starting Gold | CHARACTER_CONFIG.STARTING.GOLD | 100 |
-| Max Level | CHARACTER_CONFIG.LEVELS.MAX_LEVEL | 20 |
-| Critical Multiplier | COMBAT_CONFIG.CRITICAL.MULTIPLIER | 2 |
-| Auto-save Interval | UI_CONFIG.AUTO_SAVE_INTERVAL | 60000ms |
+| Setting             | Location                       | Default |
+|---------------------|--------------------------------|---------|
+| Starting Gold       | `CHARACTER_CONFIG.STARTING.GOLD` | 100   |
+| Max Level           | `CHARACTER_CONFIG.LEVELS.MAX_LEVEL` | 20  |
+| Point Buy Total     | `CHARACTER_CONFIG.ATTRIBUTES.POINT_BUY_TOTAL` | 27 |
+| Critical Multiplier | `COMBAT_CONFIG.CRITICAL.MULTIPLIER` | 2   |

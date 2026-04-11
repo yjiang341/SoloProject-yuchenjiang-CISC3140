@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from 'frontend/components/ui/card'
-import { Button } from 'frontend/components/ui/button'
-import { Badge } from 'frontend/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Dices, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
 
 export default function EventPanel({ event, options, onChoice, checkResult, character }) {

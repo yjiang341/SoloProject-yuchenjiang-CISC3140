@@ -1,115 +1,40 @@
-# Supabase Client Directory
+# Supabase
 
-Supabase client configuration for browser and server environments.
+Database client configuration for the Express backend.
 
 ## Files
 
-### client.js
+### `client.js` (Active)
 
-Browser-side Supabase client (singleton pattern):
+Server-side Supabase client using the **service role key** for full database access. Uses CommonJS.
 
 ```javascript
-import { createClient } from '@/lib/supabase/client'
-
-// In client components
+const { createClient } = require('../supabase/client.js')
 const supabase = createClient()
-const { data, error } = await supabase
-  .from('characters')
-  .select('*')
 ```
 
-### server.js
+All backend services use this client for database operations.
 
-Server-side Supabase client with cookie handling:
+### `server.js` & `middleware.js` (Legacy — Not Used)
 
-```javascript
-import { createClient } from '@/lib/supabase/server'
-
-// In Server Components or API routes
-export default async function Page() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-}
-```
-
-### middleware.js
-
-Session management middleware:
-
-- Refreshes auth tokens automatically
-- Protects routes requiring authentication
-- Redirects authenticated users from auth pages
-- Handles cookie management
+These are leftover files from the original Next.js architecture. They use Next.js-specific APIs (`cookies()`, `NextResponse`) and are **not imported** by the Express backend. They remain for reference but can be removed.
 
 ## Environment Variables
 
-Required in `.env.local`:
+Required in `backend/.env`:
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=your-project-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
-## Authentication Flow
+> **Important:** The backend uses `SUPABASE_URL` (not `NEXT_PUBLIC_SUPABASE_URL`) and `SUPABASE_SERVICE_ROLE_KEY` (not the anon key). The service role key bypasses Row Level Security, so keep it server-side only.
 
-```
-1. User visits /auth/login
-2. Submits credentials
-3. Supabase validates & returns session
-4. Middleware sets cookies
-5. User redirected to /character
-6. Protected routes check session via middleware
-```
+## Frontend vs Backend Clients
 
-## Row Level Security (RLS)
-
-All database queries are subject to RLS policies. The current user's ID (`auth.uid()`) is automatically available in policies.
-
-Example policy:
-```sql
-CREATE POLICY "users_own_characters" ON characters
-FOR ALL USING (auth.uid() = user_id);
-```
-
-## Common Patterns
-
-### Get Current User
-
-```javascript
-// Server Component
-const supabase = await createClient()
-const { data: { user } } = await supabase.auth.getUser()
-
-// Client Component
-const supabase = createClient()
-const { data: { user } } = await supabase.auth.getUser()
-```
-
-### Protected API Route
-
-```javascript
-import { createClient } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
-
-export async function GET() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-  
-  // Continue with authenticated request
-}
-```
-
-## Debugging
-
-Check browser Network tab for Supabase requests. Look for:
-- `auth/v1/token` - Auth operations
-- `rest/v1/tablename` - Database queries
-
-Common issues:
-- 401 errors: Session expired, re-login required
-- 403 errors: RLS policy blocking access
-- Network errors: Check environment variables
+| | Backend (`supabase/client.js`) | Frontend (`src/lib/supabase/client.js`) |
+|---|---|---|
+| Library | `@supabase/supabase-js` | `@supabase/ssr` |
+| Key | Service role key | Anon key |
+| Purpose | All data operations | Authentication only |
+| RLS | Bypassed | Enforced |

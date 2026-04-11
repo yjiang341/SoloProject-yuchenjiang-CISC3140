@@ -1,52 +1,33 @@
 'use client'
 
 import * as React from 'react'
-import * as AvatarPrimitive from '@radix-ui/react-avatar'
+import MuiAvatar from '@mui/material/Avatar'
+import MuiAvatarGroup from '@mui/material/AvatarGroup'
 
-import { cn } from '@/lib/utils'
-
-function Avatar({
-  className,
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Root>) {
+function Avatar(props: React.ComponentProps<typeof MuiAvatar>) {
   return (
-    <AvatarPrimitive.Root
+    <MuiAvatar
       data-slot="avatar"
-      className={cn(
-        'relative flex size-8 shrink-0 overflow-hidden rounded-full',
-        className,
-      )}
       {...props}
     />
   )
 }
 
-function AvatarImage({
-  className,
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Image>) {
+function AvatarImage({ src, ...props }: any) {
   return (
-    <AvatarPrimitive.Image
+    <img
       data-slot="avatar-image"
-      className={cn('aspect-square size-full', className)}
+      src={src}
       {...props}
     />
   )
 }
 
-function AvatarFallback({
-  className,
-  ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
+function AvatarFallback({ children, ...props }: any) {
   return (
-    <AvatarPrimitive.Fallback
-      data-slot="avatar-fallback"
-      className={cn(
-        'bg-muted flex size-full items-center justify-center rounded-full',
-        className,
-      )}
-      {...props}
-    />
+    <MuiAvatar data-slot="avatar-fallback" {...props}>
+      {children}
+    </MuiAvatar>
   )
 }
 

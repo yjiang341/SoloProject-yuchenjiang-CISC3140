@@ -1,15 +1,12 @@
-'use client'
-
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useNavigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ArrowLeft, ArrowRight, Dices, Check, AlertCircle } from 'lucide-react'
-import { RACES, CLASSES, STAT_NAMES, BASE_STATS } from '@/backend/config/game-config'
-import { rollStat, getModifier, getModifierString } from '@/backend/utils/stats'
+import { RACES, CLASSES, STAT_NAMES, BASE_STATS } from '@/lib/guest-config'
+import { rollStat, getModifier, getModifierString } from '@/lib/guest-utils'
 
 /**
  * Guest Character Creation Page
@@ -17,7 +14,7 @@ import { rollStat, getModifier, getModifierString } from '@/backend/utils/stats'
  * Character data is stored in localStorage
  */
 export default function GuestCharacterCreatePage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [step, setStep] = useState(1)
   const [error, setError] = useState('')
   
@@ -145,7 +142,7 @@ export default function GuestCharacterCreatePage() {
       gameTimeSeconds: 0
     }))
 
-    router.push('/guest/play')
+    navigate('/guest/play')
   }
 
   return (
@@ -154,7 +151,7 @@ export default function GuestCharacterCreatePage() {
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button variant="ghost" size="icon" asChild>
-            <Link href="/frontend/public">
+            <Link to="/">
               <ArrowLeft className="w-5 h-5" />
             </Link>
           </Button>

@@ -1,15 +1,17 @@
-'use client'
-
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/backend/supabase/client'
+import { useNavigate } from 'react-router-dom'
+import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { createCharacter, STANDARD_ARRAY, RACE_BONUSES, CLASS_INFO } from '@/backend/services/character-service'
-import { getAbilityModifier, formatModifier } from '@/backend/services/dnd-api'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
+import {
+  createCharacter,
+  getGameConfigCached,
+  getAbilityModifier,
+  formatModifier,
+} from '@/lib/api'
 import { ChevronLeft, ChevronRight, Sword, Shield, Heart, Sparkles } from 'lucide-react'
 
 const RACES = [
@@ -42,11 +44,12 @@ const CLASSES = [
 const STATS = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']
 
 export default function CreateCharacterPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [user, setUser] = useState(null)
+  const [gameConfig, setGameConfig] = useState(null)
   
   const [character, setCharacter] = useState({
     name: '',
@@ -61,14 +64,29 @@ export default function CreateCharacterPage() {
   })
   
   const [assignedStats, setAssignedStats] = useState({})
-  const [availablePoints, setAvailablePoints] = useState([...STANDARD_ARRAY])
+  const [availablePoints, setAvailablePoints] = useState([])
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUser(user)
-      else router.push('/auth/login')
-    })
+    const initialize = async () => {
+      // Load game config
+      try {
+        const config = await getGameConfigCached()
+        setGameConfig(config)
+        setAvailablePoints([...config.standardArray])
+      } catch (err) {
+        console.error('Failed to load game config:', err)
+        setError('Failed to load game configuration')
+      }
+
+      // Check user auth
+      // supabase instance already imported at top
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) setUser(user)
+        else navigate('/auth/login')
+      })
+    }
+
+    initialize()
   }, [router])
 
   function assignStat(stat, value) {
@@ -104,7 +122,7 @@ export default function CreateCharacterPage() {
 
   function getFinalStat(stat) {
     const base = character[stat]
-    const raceBonus = RACE_BONUSES[character.race]?.[stat] || 0
+    const raceBonus = gameConfig?.raceBonuses[character.race]?.[stat] || 0
     return base + raceBonus
   }
 
@@ -116,7 +134,7 @@ export default function CreateCharacterPage() {
     
     try {
       const newCharacter = await createCharacter(user.id, character)
-      router.push(`/game?character=${newCharacter.id}`)
+      navigate(`/game?character=${newCharacter.id}`)
     } catch (err) {
       setError(err.message)
       setLoading(false)
@@ -135,6 +153,10 @@ export default function CreateCharacterPage() {
 
   const selectedRace = RACES.find(r => r.index === character.race)
   const selectedClass = CLASSES.find(c => c.index === character.class)
+
+  // Helper function to calculate ability modifier locally
+  const getLocalAbilityModifier = (score) => Math.floor((score - 10) / 2)
+  const getLocalFormatModifier = (modifier) => modifier >= 0 ? `+${modifier}` : `${modifier}`
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -257,9 +279,9 @@ export default function CreateCharacterPage() {
                 {/* Stats */}
                 <div className="grid gap-3">
                   {STATS.map(stat => {
-                    const raceBonus = RACE_BONUSES[character.race]?.[stat] || 0
+                    const raceBonus = gameConfig?.raceBonuses[character.race]?.[stat] || 0
                     const finalValue = getFinalStat(stat)
-                    const modifier = getAbilityModifier(finalValue)
+                    const modifier = getLocalAbilityModifier(finalValue)
                     
                     return (
                       <div key={stat} className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
@@ -285,7 +307,7 @@ export default function CreateCharacterPage() {
                         <div className="ml-auto flex items-center gap-2">
                           <span className="font-mono text-lg">{finalValue}</span>
                           <span className={`font-mono text-sm ${modifier >= 0 ? 'text-success' : 'text-destructive'}`}>
-                            ({formatModifier(modifier)})
+                            ({getLocalFormatModifier(modifier)})
                           </span>
                         </div>
                         {assignedStats[stat] !== undefined && (
@@ -335,7 +357,7 @@ export default function CreateCharacterPage() {
                       <div key={stat} className="flex justify-between text-sm">
                         <span className="capitalize">{stat}</span>
                         <span className="font-mono">
-                          {getFinalStat(stat)} ({formatModifier(getAbilityModifier(getFinalStat(stat)))})
+                          {getFinalStat(stat)} ({getLocalFormatModifier(getLocalAbilityModifier(getFinalStat(stat)))})
                         </span>
                       </div>
                     ))}
@@ -346,19 +368,19 @@ export default function CreateCharacterPage() {
                     <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Combat Stats</h4>
                     <div className="flex items-center gap-2">
                       <Heart className="w-4 h-4 text-health" />
-                      <span>HP: {CLASS_INFO[character.class]?.hitDie + getAbilityModifier(getFinalStat('constitution'))}</span>
+                      <span>HP: {(gameConfig?.classInfo[character.class]?.hitDie || 10) + getLocalAbilityModifier(getFinalStat('constitution'))}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-mana" />
-                      <span>MP: {['bard', 'cleric', 'druid', 'sorcerer', 'warlock', 'wizard'].includes(character.class) ? Math.max(2, getAbilityModifier(getFinalStat(CLASS_INFO[character.class]?.primaryStat || 'intelligence')) + 1) * 2 : 0}</span>
+                      <span>MP: {['bard', 'cleric', 'druid', 'sorcerer', 'warlock', 'wizard'].includes(character.class) ? Math.max(2, getLocalAbilityModifier(getFinalStat(gameConfig?.classInfo[character.class]?.primaryStat || 'intelligence')) + 1) * 2 : 0}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Sword className="w-4 h-4 text-primary" />
-                      <span>Attack: +{Math.max(getAbilityModifier(getFinalStat('strength')), getAbilityModifier(getFinalStat('dexterity'))) + 2}</span>
+                      <span>Attack: +{Math.max(getLocalAbilityModifier(getFinalStat('strength')), getLocalAbilityModifier(getFinalStat('dexterity'))) + 2}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Shield className="w-4 h-4 text-accent" />
-                      <span>Defense: {10 + getAbilityModifier(getFinalStat('dexterity'))}</span>
+                      <span>Defense: {10 + getLocalAbilityModifier(getFinalStat('dexterity'))}</span>
                     </div>
                   </div>
                 </div>

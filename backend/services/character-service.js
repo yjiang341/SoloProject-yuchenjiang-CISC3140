@@ -3,14 +3,14 @@
  * Handles character creation, management, and database operations
  */
 
-import { createClient } from 'backend/supabase/client'
-import { getAbilityModifier } from './dnd-api'
+const { createClient } = require('../supabase/client.js');
+const { getAbilityModifier } = require('./dnd-api.js');
 
 // Standard array for point allocation
-export const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8]
+const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8]
 
 // Race bonuses from D&D 5e SRD
-export const RACE_BONUSES = {
+const RACE_BONUSES = {
   dragonborn: { strength: 2, charisma: 1 },
   dwarf: { constitution: 2 },
   elf: { dexterity: 2 },
@@ -23,7 +23,7 @@ export const RACE_BONUSES = {
 }
 
 // Class starting HP and primary stats
-export const CLASS_INFO = {
+const CLASS_INFO = {
   barbarian: { hitDie: 12, primaryStat: 'strength', savingThrows: ['strength', 'constitution'] },
   bard: { hitDie: 8, primaryStat: 'charisma', savingThrows: ['dexterity', 'charisma'] },
   cleric: { hitDie: 8, primaryStat: 'wisdom', savingThrows: ['wisdom', 'charisma'] },
@@ -39,7 +39,7 @@ export const CLASS_INFO = {
 }
 
 // Calculate starting HP
-export function calculateStartingHP(classIndex, constitution) {
+function calculateStartingHP(classIndex, constitution) {
   const classInfo = CLASS_INFO[classIndex]
   if (!classInfo) return 10
   
@@ -48,7 +48,7 @@ export function calculateStartingHP(classIndex, constitution) {
 }
 
 // Calculate starting MP (for spellcasters)
-export function calculateStartingMP(classIndex, primaryStatValue) {
+function calculateStartingMP(classIndex, primaryStatValue) {
   const spellcasters = ['bard', 'cleric', 'druid', 'sorcerer', 'warlock', 'wizard']
   if (!spellcasters.includes(classIndex)) return 0
   
@@ -57,7 +57,7 @@ export function calculateStartingMP(classIndex, primaryStatValue) {
 }
 
 // Apply race bonuses to stats
-export function applyRaceBonuses(stats, raceIndex) {
+function applyRaceBonuses(stats, raceIndex) {
   const bonuses = RACE_BONUSES[raceIndex] || {}
   const newStats = { ...stats }
   
@@ -69,7 +69,7 @@ export function applyRaceBonuses(stats, raceIndex) {
 }
 
 // Create a new character
-export async function createCharacter(userId, characterData) {
+async function createCharacter(userId, characterData) {
   const supabase = createClient()
   
   // Apply race bonuses
@@ -123,7 +123,7 @@ export async function createCharacter(userId, characterData) {
 }
 
 // Get all characters for a user
-export async function getUserCharacters(userId) {
+async function getUserCharacters(userId) {
   const supabase = createClient()
   
   const { data, error } = await supabase
@@ -137,7 +137,7 @@ export async function getUserCharacters(userId) {
 }
 
 // Get a single character
-export async function getCharacter(characterId) {
+async function getCharacter(characterId) {
   const supabase = createClient()
   
   const { data, error } = await supabase
@@ -151,7 +151,7 @@ export async function getCharacter(characterId) {
 }
 
 // Update character
-export async function updateCharacter(characterId, updates) {
+async function updateCharacter(characterId, updates) {
   const supabase = createClient()
   
   const { data, error } = await supabase
@@ -166,7 +166,7 @@ export async function updateCharacter(characterId, updates) {
 }
 
 // Delete character
-export async function deleteCharacter(characterId) {
+async function deleteCharacter(characterId) {
   const supabase = createClient()
   
   const { error } = await supabase
@@ -179,7 +179,7 @@ export async function deleteCharacter(characterId) {
 }
 
 // Get character inventory
-export async function getCharacterInventory(characterId) {
+async function getCharacterInventory(characterId) {
   const supabase = createClient()
   
   const { data, error } = await supabase
@@ -193,7 +193,7 @@ export async function getCharacterInventory(characterId) {
 }
 
 // Add item to inventory
-export async function addItemToInventory(characterId, item) {
+async function addItemToInventory(characterId, item) {
   const supabase = createClient()
   
   // Check if item already exists (stackable)
@@ -237,7 +237,7 @@ export async function addItemToInventory(characterId, item) {
 }
 
 // Equip/unequip item
-export async function toggleEquipItem(inventoryId, equipped) {
+async function toggleEquipItem(inventoryId, equipped) {
   const supabase = createClient()
   
   const { data, error } = await supabase
@@ -252,7 +252,7 @@ export async function toggleEquipItem(inventoryId, equipped) {
 }
 
 // Remove item from inventory
-export async function removeItemFromInventory(inventoryId, quantity = 1) {
+async function removeItemFromInventory(inventoryId, quantity = 1) {
   const supabase = createClient()
   
   const { data: item } = await supabase
@@ -285,3 +285,22 @@ export async function removeItemFromInventory(inventoryId, quantity = 1) {
   if (error) throw error
   return data
 }
+
+// Exports
+module.exports = {
+  STANDARD_ARRAY,
+  RACE_BONUSES,
+  CLASS_INFO,
+  calculateStartingHP,
+  calculateStartingMP,
+  applyRaceBonuses,
+  createCharacter,
+  getUserCharacters,
+  getCharacter,
+  updateCharacter,
+  deleteCharacter,
+  getCharacterInventory,
+  addItemToInventory,
+  toggleEquipItem,
+  removeItemFromInventory,
+};

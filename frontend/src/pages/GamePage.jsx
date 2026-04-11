@@ -1,22 +1,41 @@
-'use client'
-
 import { useState, useEffect, useCallback, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { createClient } from '@/backend/supabase/client'
-import { getCharacter, updateCharacter, getCharacterInventory, addItemToInventory } from '@/backend/services/character-service'
-import { createSave, getSave, updateSave, getLatestSave, recordEventChoice } from '@/backend/services/save-service'
-import { processChoice, getPostCheckOptions, fallbackEvents } from '@/backend/services/event-service'
-import { checkLevelUp, processLevelUp } from '@/backend/services/game-engine'
-import GameSidebar from '@/frontend/components/game/game-sidebar'
-import EventPanel from '@/frontend/components/game/event-panel'
-import CombatPanel from '@/frontend/components/game/combat-panel'
-import InventoryPanel from '@/frontend/components/game/inventory-panel'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { supabase } from '@/lib/supabase/client'
+import {
+  getCharacter,
+  updateCharacter,
+  getCharacterInventory,
+  addItemToInventory,
+  createSave,
+  updateSave,
+  getLatestSave,
+  processChoice,
+  rollDice,
+} from '@/lib/api'
+import GameSidebar from '@/components/game/game-sidebar'
+import EventPanel from '@/components/game/event-panel'
+import CombatPanel from '@/components/game/combat-panel'
+import InventoryPanel from '@/components/game/inventory-panel'
 import { Button } from '@/components/ui/button'
 import { Menu, X } from 'lucide-react'
 
+// Fallback events (from backend services config)
+const fallbackEvents = {
+  start_awakening: {
+    id: 'start_awakening',
+    title: 'The Awakening',
+    description: 'You awaken in a cold, damp dungeon cell...',
+    event_type: 'story',
+    options: [
+      { text: 'Try to reach the keys through the bars', next_event: 'reach_keys', stat_check: { stat: 'dexterity', dc: 10 } },
+      { text: 'Call out for help', next_event: 'call_help' },
+    ],
+  },
+}
+
 function GameContent() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const characterId = searchParams.get('character')
   const saveId = searchParams.get('save')
   
@@ -37,17 +56,16 @@ function GameContent() {
   // Load initial game state
   useEffect(() => {
     async function initialize() {
-      const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
-        router.push('/auth/login')
+        navigate('/auth/login')
         return
       }
       setUser(user)
       
       if (!characterId) {
-        router.push('/character')
+        navigate('/character')
         return
       }
       
@@ -55,7 +73,7 @@ function GameContent() {
         // Load character
         const char = await getCharacter(characterId)
         if (!char || char.user_id !== user.id) {
-          router.push('/character')
+          navigate('/character')
           return
         }
         setCharacter(char)
@@ -130,8 +148,6 @@ function GameContent() {
   }, [currentSave, currentEvent, gameTime, loading])
 
   async function loadEvent(eventId) {
-    const supabase = createClient()
-    
     try {
       const { data: event } = await supabase
         .from('events')

@@ -1,11 +1,8 @@
-'use client'
-
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { createClient } from 'backend/supabase/client'
-import { Button } from 'frontend/components/ui/button'
-import { Progress } from 'frontend/components/ui/progress'
-import { getAbilityModifier, formatModifier } from 'backend/services/dnd-api'
+import { useNavigate, Link } from 'react-router-dom'
+import { supabase } from '@/lib/supabase/client'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { getAbilityModifier, formatModifier } from '@/lib/api'
 import { 
   Heart, 
   Sparkles, 
@@ -38,12 +35,11 @@ export default function GameSidebar({
   onClose,
   onViewInventory 
 }) {
-  const router = useRouter()
+  const navigate = useNavigate()
 
   async function handleLogout() {
-    const supabase = createClient()
     await supabase.auth.signOut()
-    router.push('/')
+    navigate('/')
   }
 
   if (!character) return null
@@ -173,7 +169,7 @@ export default function GameSidebar({
               Inventory ({inventory.length})
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/character">
+              <Link to="/character">
                 <Home className="w-4 h-4 mr-2" />
                 Character Select
               </Link>

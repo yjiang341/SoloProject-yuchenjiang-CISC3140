@@ -1,120 +1,75 @@
-# Services Directory
+# Services
 
-Backend services for Truth of Abyss. Each service handles a specific domain.
+Game logic and database operations. All services use **CommonJS** (`require`/`module.exports`) and are imported by `server.js`.
 
-## Architecture
+## Files
+
+### `character-service.js`
+
+Character CRUD and inventory management via Supabase.
+
+| Export                    | Description                              |
+|---------------------------|------------------------------------------|
+| `STANDARD_ARRAY`          | Default stat array `[15,14,13,12,10,8]`  |
+| `RACE_BONUSES`            | Stat bonuses per race                    |
+| `CLASS_INFO`              | Hit die, primary stat, saving throws     |
+| `createCharacter(userId, data)` | Insert new character              |
+| `getUserCharacters(userId)`     | List user's characters            |
+| `getCharacter(characterId)`     | Get single character              |
+| `updateCharacter(id, updates)`  | Update character fields           |
+| `deleteCharacter(id)`           | Delete character                  |
+| `getCharacterInventory(id)`     | Get inventory items               |
+| `addItemToInventory(id, item)`  | Add item                          |
+| `toggleEquipItem(itemId, equipped)` | Toggle equip status          |
+| `removeItemFromInventory(itemId)`   | Remove item                  |
+
+### `dnd-api.js`
+
+Fetches D&D 5e SRD data from `https://www.dnd5eapi.co/api` with in-memory caching (1 hour TTL).
+
+| Export                     | Description                       |
+|----------------------------|-----------------------------------|
+| `getRaces()`               | List all races                    |
+| `getClasses()`             | List all classes                  |
+| `getRaceDetails(name)`     | Full race info                    |
+| `getClassDetails(name)`    | Full class info                   |
+| `getAbilityModifier(score)`| D&D 5e modifier formula           |
+| `formatModifier(mod)`      | Format as `+X` / `-X`            |
+| `getProficiencyBonus(level)` | Proficiency by level            |
+
+### `event-service.js`
+
+Processes story event choices, applies stat checks, and determines outcomes.
+
+| Export                     | Description                                |
+|----------------------------|--------------------------------------------|
+| `processChoice(char, event, index, prevCheck)` | Process a player choice |
+
+Handles: stat check rolls, success/failure branching, effect application, combat triggers.
+
+### `game-engine.js`
+
+Core game mechanics: dice rolling, stat checks, combat.
+
+| Export                     | Description                            |
+|----------------------------|----------------------------------------|
+| `rollDice(notation)`       | Roll dice like `"2d6+3"`              |
+| `performStatCheck(char, stat, dc)` | Roll d20 + modifier vs DC    |
+| `applyEffects(char, effects)`      | Apply HP/MP/gold/stat changes |
+
+### `save-service.js`
+
+Game save/load operations via Supabase.
+
+| Export                      | Description                           |
+|-----------------------------|---------------------------------------|
+| `createSave(userId, charId, name, state)` | Create new save        |
+| `getSaves(characterId)`     | List saves for character              |
+| `getLatestSave(characterId)`| Get most recent save                  |
+| `updateSave(saveId, updates)`| Update existing save                 |
+
+## Data Flow
 
 ```
-services/
-├── character-service.js   # Character CRUD operations
-├── dnd-api.js            # D&D 5e SRD API client
-├── event-service.js      # Event system & branching logic
-├── game-engine.js        # Core game loop & state management
-├── save-service.js       # Game save/load operations
-└── README.md
+Frontend (api.js) → HTTP request → server.js → service function → Supabase → response
 ```
-
-## Service Descriptions
-
-### character-service.js
-
-Manages character data and operations:
-
-- `createCharacter(userId, characterData)` - Create new character
-- `getCharacters(userId)` - List user's characters
-- `getCharacterById(characterId)` - Get single character
-- `updateCharacter(characterId, updates)` - Update character
-- `deleteCharacter(characterId)` - Delete character
-- `addToInventory(characterId, item)` - Add item
-- `removeFromInventory(characterId, itemId)` - Remove item
-- `equipItem(characterId, itemId)` - Equip item
-- `applyStatChange(characterId, changes)` - Modify stats
-
-### dnd-api.js
-
-D&D 5e SRD API integration:
-
-- `fetchClasses()` - Get all available classes
-- `fetchRaces()` - Get all available races
-- `fetchSpells(filters)` - Get spells with filtering
-- `fetchMonsters(filters)` - Get monsters for encounters
-- `fetchEquipment(category)` - Get equipment by category
-- `getClassDetails(className)` - Full class information
-- `getRaceDetails(raceName)` - Full race information
-
-### event-service.js
-
-Branching narrative event system:
-
-- `getEvent(eventId)` - Fetch event by ID
-- `processChoice(character, event, choiceIndex)` - Handle player choice
-- `checkRequirements(character, requirements)` - Validate prerequisites
-- `applyEffects(character, effects)` - Apply choice effects
-- `getNextEvent(currentEventId, choice)` - Determine next event
-
-### game-engine.js
-
-Core game loop and state:
-
-- `initializeGame(userId, characterId)` - Start game session
-- `processGameTick(gameState)` - Main game loop
-- `handleCombat(gameState, action)` - Combat processing
-- `calculateStatCheck(character, stat, dc)` - Stat checks
-- `getGameState(saveId)` - Load game state
-- `updateGameState(saveId, updates)` - Update state
-
-### save-service.js
-
-Save/load functionality:
-
-- `createSave(userId, characterId, saveName)` - Create new save
-- `getSaves(userId)` - List user's saves
-- `loadSave(saveId)` - Load save data
-- `updateSave(saveId, gameState)` - Update save
-- `deleteSave(saveId)` - Delete save
-- `autoSave(saveId, gameState)` - Auto-save handler
-
-## Usage Example
-
-```javascript
-// In a pages or API route
-import { createCharacter } from '@/lib/services/character-service'
-import { initializeGame } from '@/lib/services/game-engine'
-import { createSave } from '@/lib/services/save-service'
-
-// Create character, initialize game, create save
-const character = await createCharacter(userId, characterData)
-const save = await createSave(userId, character.id, 'New Adventure')
-const gameState = await initializeGame(userId, character.id, save.id)
-```
-
-## Error Handling
-
-All services return consistent error objects:
-
-```javascript
-{
-  success: false,
-  error: 'Error message',
-  code: 'ERROR_CODE'
-}
-```
-
-Or on success:
-
-```javascript
-{
-  success: true,
-  data: { ... }
-}
-```
-
-## Debugging
-
-Services log to console with `[v0]` prefix:
-
-```javascript
-console.log('[v0] character-service: Creating character', { userId, name })
-```
-
-Filter browser console by "[v0]" to see game logs.

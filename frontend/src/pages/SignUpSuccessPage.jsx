@@ -1,8 +1,6 @@
-'use client'
-
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Link } from 'react-router-dom'
+import { Button } from '../components/ui/button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
 import { Mail } from 'lucide-react'
 
 export default function SignUpSuccessPage() {
@@ -30,7 +28,7 @@ export default function SignUpSuccessPage() {
         
         <CardFooter className="flex flex-col gap-4">
           <Button asChild variant="outline" className="w-full">
-            <Link href="/auth/login">Return to Login</Link>
+            <Link to="/auth/login">Return to Login</Link>
           </Button>
         </CardFooter>
       </Card>

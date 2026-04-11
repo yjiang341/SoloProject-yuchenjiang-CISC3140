@@ -1,9 +1,6 @@
-'use client'
-
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { createClient } from '@/backend/supabase/client'
+import { useNavigate, Link } from 'react-router-dom'
+import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,14 +12,14 @@ export default function SignUpPage() {
   const [username, setUsername] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  const navigate = useNavigate()
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError(null)
     setLoading(true)
 
-    const supabase = createClient()
+    // supabase instance already imported at top
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -41,7 +38,7 @@ export default function SignUpPage() {
       return
     }
 
-    router.push('/auth/sign-up-success')
+    navigate('/auth/sign-up-success')
   }
 
   return (
@@ -118,7 +115,7 @@ export default function SignUpPage() {
             
             <p className="text-sm text-muted-foreground text-center">
               Already have an account?{' '}
-              <Link href="/auth/login" className="text-primary hover:underline">
+              <Link to="/auth/login" className="text-primary hover:underline">
                 Sign in
               </Link>
             </p>

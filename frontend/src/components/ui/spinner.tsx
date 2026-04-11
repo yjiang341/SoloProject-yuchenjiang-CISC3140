@@ -1,13 +1,15 @@
-import { Loader2Icon } from 'lucide-react'
+'use client'
 
-import { cn } from '@/lib/utils'
+import * as React from 'react'
+import MuiCircularProgress from '@mui/material/CircularProgress'
 
-function Spinner({ className, ...props }: React.ComponentProps<'svg'>) {
+function Spinner(props: React.ComponentProps<typeof MuiCircularProgress>) {
   return (
-    <Loader2Icon
+    <MuiCircularProgress
+      data-slot="spinner"
       role="status"
       aria-label="Loading"
-      className={cn('size-4 animate-spin', className)}
+      size={20}
       {...props}
     />
   )

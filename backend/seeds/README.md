@@ -1,31 +1,55 @@
-# Database Scripts (`/scripts`)
+# Seeds
 
-This directory contains SQL migration and seed scripts for the Supabase database.
+SQL migration and seed scripts for the Supabase PostgreSQL database. Run these in order against your Supabase project's SQL editor.
 
 ## Scripts
 
 ### `001_create_tables.sql`
-Creates all database tables:
-- `profiles` - User profiles (linked to auth.users)
-- `characters` - Player characters with stats
-- `inventory` - Character items/equipment
-- `game_saves` - Save game states
-- `events` - Story event content
-- `event_history` - Player choice history
 
-Also sets up Row Level Security (RLS) policies for all tables.
+Creates all database tables with Row Level Security (RLS) policies:
+
+| Table           | Purpose                           |
+|-----------------|-----------------------------------|
+| `profiles`      | User profiles (linked to `auth.users`) |
+| `characters`    | Player characters with all stats  |
+| `inventory`     | Character items/equipment         |
+| `game_saves`    | Save game states + event history  |
+| `events`        | Story event content               |
+| `event_history` | Player choice log per save        |
 
 ### `002_profile_trigger.sql`
-Creates a database trigger that automatically creates a profile
-when a new user signs up via Supabase Auth.
+
+Creates a database trigger that automatically inserts a row into `profiles` when a new user signs up through Supabase Auth.
 
 ### `003_seed_events.sql`
-Seeds the events table with initial game content:
-- Starting dungeon scenario
-- Multiple branching paths
-- Stat check events
-- Combat encounters
-- Story reveals
+
+Populates the `events` table with the initial dungeon story content — the same events available in guest mode via `EVENTS_DATA`.
+
+## Running
+
+Execute each script in the Supabase Dashboard SQL Editor in numeric order, or use the Supabase CLI:
+
+```bash
+supabase db reset   # Runs all migrations
+```
+
+## Adding New Events
+
+```sql
+INSERT INTO public.events (id, title, description, event_type, options) VALUES
+('new_event_id', 'Event Title', 'Description text...', 'story',
+'[{"text": "Choice text", "next_event": "next_id", "stat_check": {"stat": "dexterity", "dc": 12}}]');
+```
+
+### Option Properties
+
+| Property     | Type   | Description                                |
+|--------------|--------|--------------------------------------------|
+| `text`       | string | Display text for the choice                |
+| `next_event` | string | ID of the next event                       |
+| `stat_check` | object | `{stat, dc}` — triggers a d20 roll        |
+| `failureEvent` | string | Event ID if stat check fails             |
+| `effects`    | object | `{hp, mp, gold, experience, item, [stat]}` |
 
 ## Database Schema
 

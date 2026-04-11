@@ -1,10 +1,7 @@
-'use client'
-
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { createClient } from '@/backend/supabase/client'
-import { getUserCharacters, deleteCharacter } from '@/backend/services/character-service'
+import { useNavigate, Link } from 'react-router-dom'
+import { supabase } from '@/lib/supabase/client'
+import { getUserCharacters, deleteCharacter } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { 
@@ -20,18 +17,18 @@ import {
 import { Plus, Trash2, Play, Sword, Shield, Heart, User } from 'lucide-react'
 
 export default function CharacterSelectPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [characters, setCharacters] = useState([])
   const [loading, setLoading] = useState(true)
   const [deleteTarget, setDeleteTarget] = useState(null)
 
   useEffect(() => {
     async function loadCharacters() {
-      const supabase = createClient()
+      // supabase instance already imported at top
       const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
-        router.push('/auth/login')
+        navigate('/auth/login')
         return
       }
       
@@ -82,7 +79,7 @@ export default function CharacterSelectPage() {
 
         <div className="grid gap-4 md:grid-cols-2">
           {/* Create New Character Card */}
-          <Link href="/character/create">
+          <Link to="/character/create">
             <Card className="h-full border-dashed border-2 border-border hover:border-primary/50 transition-colors cursor-pointer bg-card/50">
               <CardContent className="flex flex-col items-center justify-center h-full min-h-[200px] text-center">
                 <Plus className="w-12 h-12 text-muted-foreground mb-4" />
@@ -136,7 +133,7 @@ export default function CharacterSelectPage() {
                 <div className="flex gap-2">
                   <Button
                     className="flex-1"
-                    onClick={() => router.push(`/game?character=${char.id}`)}
+                    onClick={() => navigate(`/game?character=${char.id}`)}
                   >
                     <Play className="w-4 h-4 mr-2" />
                     Continue
@@ -156,7 +153,7 @@ export default function CharacterSelectPage() {
         {/* Back to menu */}
         <div className="text-center mt-8">
           <Button variant="outline" asChild>
-            <Link href="/frontend/public">Return to Main Menu</Link>
+            <Link to="/">Return to Main Menu</Link>
           </Button>
         </div>
       </div>

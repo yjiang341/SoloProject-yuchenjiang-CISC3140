@@ -1,79 +1,33 @@
-# Utilities Directory
+# Utils
 
-Pure utility functions for game mechanics. These are stateless helpers that can be used anywhere.
+Pure utility functions for dice rolling and stat calculations. These use **ES6 module** syntax (`export`).
 
-## Files
+> **Note:** These files are not directly imported by the CommonJS services in production. They serve as the source-of-truth implementations. The frontend has local copies in `frontend/src/lib/guest-utils.js` for guest mode.
 
-### dice.js
+## `dice.js`
 
-Handles all dice rolling operations:
+All dice-related operations.
 
-```javascript
-import { 
-  rollDie,        // Roll a single die
-  rollMultiple,   // Roll multiple dice
-  rollNotation,   // Parse "2d6+3" notation
-  rollD20,        // Quick D20 roll
-  statCheck,      // Full stat check with DC
-  rollDamage      // Damage roll with critical support
-} from '@/lib/utils/dice'
+| Export                  | Description                                    |
+|-------------------------|------------------------------------------------|
+| `rollDie(sides)`        | Roll a single die (e.g., `rollDie(20)`)        |
+| `rollMultiple(count, sides)` | Roll multiple dice, get total + individual rolls |
+| `rollNotation(notation)` | Parse `"2d6+3"` → `{ total, rolls, modifier }` |
+| `rollD20()`             | Shorthand for `rollDie(20)`                    |
+| `rollWithAdvantage()`   | Roll 2d20, take higher                         |
+| `rollWithDisadvantage()` | Roll 2d20, take lower                         |
+| `statCheck(modifier, dc, rollType)` | Full stat check with critical detection |
+| `rollInitiative(dexMod)` | d20 + dex modifier                            |
+| `rollDamage(notation, isCritical)` | Damage roll with optional crit double |
 
-// Examples
-const damage = rollNotation('2d6+3')
-// { total: 11, rolls: [4, 4], modifier: 3, notation: '2d6+3' }
+## `stats.js`
 
-const check = statCheck(3, 15, 'advantage')
-// { success: true, roll: 17, total: 20, dc: 15, margin: 5, ... }
-```
+Character stat calculations. Imports from `../config/game-config`.
 
-### stats.js
-
-Character stat calculations:
-
-```javascript
-import {
-  getModifier,           // Attribute score -> modifier
-  formatModifier,        // +3 or -1 formatting
-  getProficiencyBonus,   // Level -> proficiency
-  calculateMaxHP,        // HP calculation
-  calculateMaxMP,        // MP for spellcasters
-  calculateAC,           // Armor class calculation
-  getXPForNextLevel      // XP thresholds
-} from '@/lib/utils/stats'
-
-// Examples
-const strMod = getModifier(16)  // Returns 3
-const display = formatModifier(strMod)  // Returns "+3"
-const maxHP = calculateMaxHP('fighter', 5, 14)  // HP for level 5 fighter
-```
-
-## Design Principles
-
-1. **Pure Functions**: No side effects, same input = same output
-2. **Single Responsibility**: Each function does one thing
-3. **Well Documented**: JSDoc comments for all exports
-4. **Testable**: Easy to unit test in isolation
-
-## Adding New Utilities
-
-1. Create a new file for the utility category
-2. Export only the public API
-3. Add JSDoc comments
-4. Update this README
-
-## Testing Utilities
-
-```javascript
-// Example test for dice.js
-import { rollNotation } from '@/lib/utils/dice'
-
-describe('rollNotation', () => {
-  it('parses 2d6+3 correctly', () => {
-    const result = rollNotation('2d6+3')
-    expect(result.modifier).toBe(3)
-    expect(result.rolls.length).toBe(2)
-    expect(result.total).toBeGreaterThanOrEqual(5)
-    expect(result.total).toBeLessThanOrEqual(15)
-  })
-})
-```
+| Export                   | Description                          |
+|--------------------------|--------------------------------------|
+| `getModifier(score)`     | D&D 5e formula: `floor((score-10)/2)` |
+| `formatModifier(mod)`    | Format as `"+3"` or `"-1"`          |
+| `getModifierString`      | Alias for `formatModifier`           |
+| `rollStat()`             | 4d6 drop lowest (returns 3–18)       |
+| `rollStatArray()`        | Roll all 6 ability scores            |

@@ -1,20 +1,19 @@
-'use client'
-
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
+import { useNavigate, Link } from 'react-router-dom'
+import { supabase } from '@/lib/supabase/client'
 import { Sword, Shield, Scroll, Users, LogIn, UserPlus, Gamepad2 } from 'lucide-react'
+import { Button } from '../components/ui/button'
+import '../styles/HomePage.css'
+
 
 export default function HomePage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function checkAuth() {
-      const supabase = createClient()
+      // supabase instance already imported at top
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
       setLoading(false)
@@ -53,7 +52,7 @@ export default function HomePage() {
               <Button 
                 size="lg" 
                 className="w-full text-lg h-14"
-                onClick={() => router.push('/character')}
+                onClick={() => navigate('/character')}
               >
                 <Sword className="w-5 h-5 mr-3" />
                 Continue Journey
@@ -62,7 +61,7 @@ export default function HomePage() {
                 size="lg" 
                 variant="outline"
                 className="w-full text-lg h-14"
-                onClick={() => router.push('/character/create')}
+                onClick={() => navigate('/character/create')}
               >
                 <UserPlus className="w-5 h-5 mr-3" />
                 New Character
@@ -75,7 +74,7 @@ export default function HomePage() {
                 className="w-full text-lg h-14"
                 asChild
               >
-                <Link href="/frontend/src/auth/login">
+                <Link to="/auth/login">
                   <LogIn className="w-5 h-5 mr-3" />
                   Enter the Abyss
                 </Link>
@@ -86,7 +85,7 @@ export default function HomePage() {
                 className="w-full text-lg h-14"
                 asChild
               >
-                <Link href="/frontend/src/auth/sign-up">
+                <Link to="/auth/sign-up">
                   <Scroll className="w-5 h-5 mr-3" />
                   Begin Your Story
                 </Link>
@@ -105,7 +104,7 @@ export default function HomePage() {
                 className="w-full text-lg h-14"
                 asChild
               >
-                <Link href="/frontend/src/components/guest/create">
+                <Link to="/guest/create">
                   <Gamepad2 className="w-5 h-5 mr-3" />
                   Play as Guest
                 </Link>

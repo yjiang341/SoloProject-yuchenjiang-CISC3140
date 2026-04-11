@@ -1,8 +1,5 @@
-'use client'
-
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useNavigate, Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
@@ -11,9 +8,8 @@ import {
   ArrowLeft, Save, Dices, AlertCircle,
   Package, BookOpen, User
 } from 'lucide-react'
-import { EVENTS_DATA } from '@/backend/config/game-config'
-import { rollD20, statCheck } from '@/backend/utils/dice'
-import { getModifier } from '@/backend/utils/stats'
+import { EVENTS_DATA } from '@/lib/guest-config'
+import { rollD20, statCheck, getModifier } from '@/lib/guest-utils'
 
 /**
  * Guest Game Play Page
@@ -21,7 +17,7 @@ import { getModifier } from '@/backend/utils/stats'
  * All data persisted to localStorage
  */
 export default function GuestPlayPage() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [character, setCharacter] = useState(null)
   const [gameState, setGameState] = useState(null)
   const [currentEvent, setCurrentEvent] = useState(null)
@@ -37,7 +33,7 @@ export default function GuestPlayPage() {
     const savedGameState = localStorage.getItem('guestGameState')
 
     if (!savedCharacter) {
-      router.push('/guest/create')
+      navigate('/guest/create')
       return
     }
 
@@ -58,7 +54,7 @@ export default function GuestPlayPage() {
     }
     
     setLoading(false)
-  }, [router])
+  }, [navigate])
 
   // Auto-save game state
   const saveGame = useCallback(() => {
@@ -169,7 +165,7 @@ export default function GuestPlayPage() {
     if (confirm('Are you sure you want to start over? All progress will be lost.')) {
       localStorage.removeItem('guestCharacter')
       localStorage.removeItem('guestGameState')
-      router.push('/guest/create')
+      navigate('/guest/create')
     }
   }
 
@@ -193,7 +189,7 @@ export default function GuestPlayPage() {
             <h2 className="text-xl font-heading mb-2">No Character Found</h2>
             <p className="text-muted-foreground mb-4">Create a character to begin your adventure.</p>
             <Button asChild>
-              <Link href="/guest/create">Create Character</Link>
+              <Link to="/guest/create">Create Character</Link>
             </Button>
           </CardContent>
         </Card>
@@ -208,7 +204,7 @@ export default function GuestPlayPage() {
         <div className="flex items-center justify-between p-4 max-w-6xl mx-auto">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" asChild>
-              <Link href="/frontend/public">
+              <Link to="/">
                 <ArrowLeft className="w-5 h-5" />
               </Link>
             </Button>

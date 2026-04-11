@@ -27,106 +27,130 @@ async function fetchWithCache(endpoint, ttl = 3600000) {
 }
 
 // Races
-export async function getRaces() {
+async function getRaces() {
   const data = await fetchWithCache('/races')
   return data.results
 }
 
-export async function getRace(index) {
+async function getRace(index) {
   return await fetchWithCache(`/races/${index}`)
 }
 
 // Classes
-export async function getClasses() {
+async function getClasses() {
   const data = await fetchWithCache('/classes')
   return data.results
 }
 
-export async function getClass(index) {
+async function getClass(index) {
   return await fetchWithCache(`/classes/${index}`)
 }
 
 // Equipment
-export async function getEquipment() {
+async function getEquipment() {
   const data = await fetchWithCache('/equipment')
   return data.results
 }
 
-export async function getEquipmentItem(index) {
+async function getEquipmentItem(index) {
   return await fetchWithCache(`/equipment/${index}`)
 }
 
 // Weapons
-export async function getWeapons() {
+async function getWeapons() {
   const data = await fetchWithCache('/equipment-categories/weapon')
   return data.equipment || []
 }
 
 // Armor
-export async function getArmor() {
+async function getArmor() {
   const data = await fetchWithCache('/equipment-categories/armor')
   return data.equipment || []
 }
 
 // Spells
-export async function getSpells() {
+async function getSpells() {
   const data = await fetchWithCache('/spells')
   return data.results
 }
 
-export async function getSpell(index) {
+async function getSpell(index) {
   return await fetchWithCache(`/spells/${index}`)
 }
 
-export async function getSpellsByClass(classIndex) {
+async function getSpellsByClass(classIndex) {
   const data = await fetchWithCache(`/classes/${classIndex}/spells`)
   return data.results || []
 }
 
 // Monsters
-export async function getMonsters() {
+async function getMonsters() {
   const data = await fetchWithCache('/monsters')
   return data.results
 }
 
-export async function getMonster(index) {
+async function getMonster(index) {
   return await fetchWithCache(`/monsters/${index}`)
 }
 
-export async function getMonstersByChallenge(rating) {
+async function getMonstersByChallenge(rating) {
   const data = await fetchWithCache(`/monsters?challenge_rating=${rating}`)
   return data.results || []
 }
 
 // Ability Scores
-export async function getAbilityScores() {
+async function getAbilityScores() {
   const data = await fetchWithCache('/ability-scores')
   return data.results
 }
 
 // Skills
-export async function getSkills() {
+async function getSkills() {
   const data = await fetchWithCache('/skills')
   return data.results
 }
 
 // Proficiencies
-export async function getProficiencies() {
+async function getProficiencies() {
   const data = await fetchWithCache('/proficiencies')
   return data.results
 }
 
 // Helper function to calculate ability modifier
-export function getAbilityModifier(score) {
+function getAbilityModifier(score) {
   return Math.floor((score - 10) / 2)
 }
 
 // Helper to format modifier for display
-export function formatModifier(modifier) {
+function formatModifier(modifier) {
   return modifier >= 0 ? `+${modifier}` : `${modifier}`
 }
 
 // Calculate proficiency bonus by level
-export function getProficiencyBonus(level) {
+function getProficiencyBonus(level) {
   return Math.ceil(level / 4) + 1
 }
+
+// Exports
+module.exports = {
+  getRaces,
+  getRace,
+  getClasses,
+  getClass,
+  getEquipment,
+  getEquipmentItem,
+  getWeapons,
+  getArmor,
+  getSpells,
+  getSpell,
+  getSpellsByClass,
+  getMonsters,
+  getMonster,
+  getMonstersByChallenge,
+  getAbilityScores,
+  getSkills,
+  getProficiencies,
+  getAbilityModifier,
+  formatModifier,
+  getProficiencyBonus,
+};

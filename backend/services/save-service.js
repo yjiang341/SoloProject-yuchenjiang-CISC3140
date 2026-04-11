@@ -3,10 +3,10 @@
  * Handles game save/load operations
  */
 
-import { createClient } from 'backend/supabase/client'
+const { createClient } = require('../supabase/client.js');
 
 // Create a new game save
-export async function createSave(userId, characterId, saveName, gameState = {}) {
+async function createSave(userId, characterId, saveName, gameState = {}) {
   const supabase = createClient()
   
   const save = {
@@ -33,7 +33,7 @@ export async function createSave(userId, characterId, saveName, gameState = {}) 
 }
 
 // Get all saves for a user
-export async function getUserSaves(userId) {
+async function getUserSaves(userId) {
   const supabase = createClient()
   
   const { data, error } = await supabase
@@ -55,7 +55,7 @@ export async function getUserSaves(userId) {
 }
 
 // Get a specific save
-export async function getSave(saveId) {
+async function getSave(saveId) {
   const supabase = createClient()
   
   const { data, error } = await supabase
@@ -72,7 +72,7 @@ export async function getSave(saveId) {
 }
 
 // Update a save
-export async function updateSave(saveId, updates) {
+async function updateSave(saveId, updates) {
   const supabase = createClient()
   
   const { data, error } = await supabase
@@ -90,7 +90,7 @@ export async function updateSave(saveId, updates) {
 }
 
 // Delete a save
-export async function deleteSave(saveId) {
+async function deleteSave(saveId) {
   const supabase = createClient()
   
   const { error } = await supabase
@@ -103,7 +103,7 @@ export async function deleteSave(saveId) {
 }
 
 // Auto-save (quick save)
-export async function autoSave(saveId, gameState) {
+async function autoSave(saveId, gameState) {
   return updateSave(saveId, {
     current_event_id: gameState.currentEventId,
     game_time_seconds: gameState.gameTime,
@@ -112,7 +112,7 @@ export async function autoSave(saveId, gameState) {
 }
 
 // Record event history
-export async function recordEventChoice(saveId, eventId, choiceIndex, resultData = {}) {
+async function recordEventChoice(saveId, eventId, choiceIndex, resultData = {}) {
   const supabase = createClient()
   
   const { data, error } = await supabase
@@ -131,7 +131,7 @@ export async function recordEventChoice(saveId, eventId, choiceIndex, resultData
 }
 
 // Get event history for a save
-export async function getEventHistory(saveId) {
+async function getEventHistory(saveId) {
   const supabase = createClient()
   
   const { data, error } = await supabase
@@ -145,7 +145,7 @@ export async function getEventHistory(saveId) {
 }
 
 // Get the latest save for a character
-export async function getLatestSave(characterId) {
+async function getLatestSave(characterId) {
   const supabase = createClient()
   
   const { data, error } = await supabase
@@ -161,7 +161,7 @@ export async function getLatestSave(characterId) {
 }
 
 // Check if character has any saves
-export async function characterHasSaves(characterId) {
+async function characterHasSaves(characterId) {
   const supabase = createClient()
   
   const { count, error } = await supabase
@@ -172,3 +172,17 @@ export async function characterHasSaves(characterId) {
   if (error) throw error
   return count > 0
 }
+
+// Exports
+module.exports = {
+  createSave,
+  getUserSaves,
+  getSave,
+  updateSave,
+  deleteSave,
+  autoSave,
+  recordEventChoice,
+  getEventHistory,
+  getLatestSave,
+  characterHasSaves,
+};

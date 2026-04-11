@@ -1,98 +1,58 @@
-# Backend Services (`/lib`)
+# Backend — Express REST API
 
-This directory contains all backend logic, services, and utilities for **Truth of Abyss**.
+The backend is a standalone Express.js server that handles all database operations, game logic, and D&D API integration.
 
 ## Directory Structure
 
 ```
-lib/
-├── supabase/           # Database client configuration
-│   ├── client.js       # Browser client (for client components)
-│   ├── server.js       # Server client (for Server Components & API routes)
-│   └── middleware.js   # Session management middleware
-│
-├── services/           # Game logic and business services
-│   ├── dnd-api.js      # D&D 5e SRD API integration
-│   ├── game-engine.js  # Core game mechanics (dice, combat, stats)
-│   ├── event-service.js # Story event processing
-│   ├── character-service.js # Character CRUD operations
-│   └── save-service.js # Game save/load functionality
-│
-└── utils.ts            # Shared utility functions
+backend/
+├── server.js           # Express app — all API routes defined here
+├── package.json        # Dependencies (express, cors, dotenv, supabase)
+├── config/
+│   └── game-config.js  # Game balance constants, races, classes, events data
+├── services/
+│   ├── character-service.js  # Character CRUD + inventory operations
+│   ├── dnd-api.js            # D&D 5e SRD API client with caching
+│   ├── event-service.js      # Event choice processing + stat checks
+│   ├── game-engine.js        # Dice rolling, combat, effect application
+│   └── save-service.js       # Game save/load operations
+├── supabase/
+│   └── client.js       # Server-side Supabase client (service role key)
+├── seeds/
+│   ├── 001_create_tables.sql   # Table creation + RLS policies
+│   ├── 002_profile_trigger.sql # Auto-create profile on signup
+│   └── 003_seed_events.sql     # Initial story event content
+└── utils/
+    ├── dice.js         # Dice rolling utilities (ES6, used by config)
+    └── stats.js        # Stat calculation helpers (ES6, used by config)
 ```
 
-## Services Overview
+## Running
 
-### `dnd-api.js` - D&D 5e API Integration
-Fetches official D&D content from the open5e API:
-- Races and race traits
-- Classes and class features
-- Equipment, weapons, and armor
-- Spells by level and class
-- Monsters by challenge rating
-- Ability score calculations
-
-### `game-engine.js` - Core Game Mechanics
-Implements D&D 5e gameplay mechanics:
-- Dice rolling (`rollDice("2d6+3")`)
-- Stat checks with DC
-- Attack rolls and damage calculation
-- Initiative and AC calculation
-- Level up processing
-- Effect application
-
-### `event-service.js` - Story Event System
-Handles the branching narrative:
-- Event choice processing
-- Stat check requirements
-- Conditional branching
-- Event text personalization
-- Combat encounter creation
-
-### `character-service.js` - Character Management
-Full character lifecycle:
-- Character creation with race/class bonuses
-- Inventory management
-- Equipment handling
-- Character CRUD operations
-
-### `save-service.js` - Game Persistence
-Save/load system:
-- Auto-save functionality
-- Manual saves
-- Event history tracking
-- Game state serialization
-
-## Usage Examples
-
-```javascript
-// Rolling dice
-import { rollDice, performStatCheck } from '@/lib/services/game-engine'
-
-const roll = rollDice('1d20+5')
-console.log(roll.total) // e.g., 15
-
-// Stat check
-const check = performStatCheck(character, 'dexterity', 12)
-if (check.success) {
-  // Pass the check
-}
-
-// Fetching D&D data
-import { getClasses, getRaces } from '@/lib/services/dnd-api'
-
-const classes = await getClasses()
-const races = await getRaces()
+```bash
+npm install
+npm run dev    # nodemon on port 3000
+npm start      # production mode
 ```
 
-## Database Integration
+## Environment Variables
 
-Uses Supabase for all data persistence:
-- **profiles**: User accounts
-- **characters**: Player characters
-- **inventory**: Character items
-- **game_saves**: Save states
-- **events**: Story content
-- **event_history**: Player choices
+Create a `.env` file:
 
-All tables have Row Level Security (RLS) enabled.
+```
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+PORT=3000
+```
+
+## Module System
+
+- **Services** (`services/`, `supabase/client.js`, `server.js`) use **CommonJS** (`require` / `module.exports`)
+- **Config and utils** (`config/`, `utils/`) use **ES6 modules** (`import` / `export`) — these are also consumed by the frontend's guest-mode copies
+
+## How It Works
+
+1. `server.js` imports all services and defines REST endpoints
+2. Each service function talks to Supabase through `supabase/client.js`
+3. The frontend calls these endpoints via `fetch` from `frontend/src/lib/api.js`
+4. All database access is scoped through Supabase Row Level Security

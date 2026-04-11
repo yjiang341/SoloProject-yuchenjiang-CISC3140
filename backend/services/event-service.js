@@ -3,10 +3,10 @@
  * Handles story events, branching narratives, and choice processing
  */
 
-import { performStatCheck, applyEffects } from './game-engine'
+const { performStatCheck, applyEffects } = require('./game-engine.js');
 
 // Process an event choice
-export function processChoice(character, event, choiceIndex, previousCheckResult = null) {
+function processChoice(character, event, choiceIndex, previousCheckResult = null) {
   const choice = event.options[choiceIndex]
   
   if (!choice) {
@@ -52,7 +52,7 @@ export function processChoice(character, event, choiceIndex, previousCheckResult
 }
 
 // Get filtered options based on character state and requirements
-export function getAvailableOptions(character, event, inventory = []) {
+function getAvailableOptions(character, event, inventory = []) {
   return event.options.filter(option => {
     // Check requirements
     if (option.requirements) {
@@ -95,7 +95,7 @@ export function getAvailableOptions(character, event, inventory = []) {
 }
 
 // Generate dynamic event text based on character
-export function personalizeEventText(text, character) {
+function personalizeEventText(text, character) {
   return text
     .replace(/\{name\}/g, character.name)
     .replace(/\{class\}/g, character.class)
@@ -104,7 +104,7 @@ export function personalizeEventText(text, character) {
 }
 
 // Determine which options to show after a stat check
-export function getPostCheckOptions(event, checkPassed) {
+function getPostCheckOptions(event, checkPassed) {
   return event.options.filter(option => {
     if (option.condition === 'check_passed') {
       return checkPassed
@@ -118,7 +118,7 @@ export function getPostCheckOptions(event, checkPassed) {
 }
 
 // Create a combat encounter from an event
-export function createCombatEncounter(combatData) {
+function createCombatEncounter(combatData) {
   return {
     enemyId: combatData.enemy_id,
     enemies: combatData.enemies || [{ id: combatData.enemy_id, count: 1 }],
@@ -129,7 +129,7 @@ export function createCombatEncounter(combatData) {
 }
 
 // Local fallback events (used if database is unavailable)
-export const fallbackEvents = {
+const fallbackEvents = {
   start_awakening: {
     id: 'start_awakening',
     title: 'The Awakening',
@@ -164,3 +164,13 @@ export const fallbackEvents = {
     ],
   },
 }
+
+// Exports
+module.exports = {
+  processChoice,
+  getAvailableOptions,
+  personalizeEventText,
+  getPostCheckOptions,
+  createCombatEncounter,
+  fallbackEvents,
+};

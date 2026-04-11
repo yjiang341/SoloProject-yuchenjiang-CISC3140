@@ -11,13 +11,14 @@
  * @module game-engine
  */
 
-import { getAbilityModifier, getProficiencyBonus } from './dnd-api'
-import { rollNotation, statCheck as diceStatCheck } from '../utils/dice'
-import { getModifier, getProficiencyBonus as statProfBonus } from '../utils/stats'
-import { COMBAT_CONFIG, EVENT_CONFIG } from '../config/game-config'
+const { getAbilityModifier, getProficiencyBonus } = require('./dnd-api.js');
+// Note: dice.js and stats.js utilities commented out for now
+// import { rollNotation, statCheck as diceStatCheck } from '../utils/dice'
+// import { getModifier, getProficiencyBonus as statProfBonus } from '../utils/stats'
+// import { COMBAT_CONFIG, EVENT_CONFIG } from '../config/game-config'
 
 // Roll dice (e.g., "2d6", "1d20+5")
-export function rollDice(diceNotation) {
+function rollDice(diceNotation) {
   const regex = /(\d+)d(\d+)([+-]\d+)?/
   const match = diceNotation.match(regex)
   
@@ -49,12 +50,12 @@ export function rollDice(diceNotation) {
 }
 
 // Roll a d20
-export function rollD20() {
+function rollD20() {
   return rollDice('1d20')
 }
 
 // Perform a stat check
-export function performStatCheck(character, stat, dc) {
+function performStatCheck(character, stat, dc) {
   const statValue = character[stat] || 10
   const modifier = getAbilityModifier(statValue)
   const roll = rollD20()
@@ -75,7 +76,7 @@ export function performStatCheck(character, stat, dc) {
 }
 
 // Calculate attack roll
-export function attackRoll(character, weapon = null) {
+function attackRoll(character, weapon = null) {
   const roll = rollD20()
   
   // Determine if using strength or dexterity
@@ -100,7 +101,7 @@ export function attackRoll(character, weapon = null) {
 }
 
 // Calculate damage
-export function calculateDamage(character, weapon = null, isCrit = false) {
+function calculateDamage(character, weapon = null, isCrit = false) {
   const baseDamage = weapon?.damage || '1d4'
   const strMod = getAbilityModifier(character.strength)
   const dexMod = getAbilityModifier(character.dexterity)
@@ -131,7 +132,7 @@ export function calculateDamage(character, weapon = null, isCrit = false) {
 }
 
 // Calculate initiative
-export function rollInitiative(character) {
+function rollInitiative(character) {
   const dexMod = getAbilityModifier(character.dexterity)
   const roll = rollD20()
   
@@ -143,7 +144,7 @@ export function rollInitiative(character) {
 }
 
 // Calculate armor class
-export function calculateAC(character, equipment = []) {
+function calculateAC(character, equipment = []) {
   const dexMod = getAbilityModifier(character.dexterity)
   
   // Find equipped armor
@@ -165,7 +166,7 @@ export function calculateAC(character, equipment = []) {
 }
 
 // Apply effects from an event choice
-export function applyEffects(character, effects) {
+function applyEffects(character, effects) {
   const updates = {}
   const messages = []
   
@@ -211,20 +212,20 @@ export function applyEffects(character, effects) {
 }
 
 // Calculate experience needed for next level
-export function getXPForLevel(level) {
+function getXPForLevel(level) {
   const xpTable = [0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 
                    85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000]
   return xpTable[level] || xpTable[xpTable.length - 1]
 }
 
 // Check if character should level up
-export function checkLevelUp(character) {
+function checkLevelUp(character) {
   const xpNeeded = getXPForLevel(character.level)
   return character.experience >= xpNeeded && character.level < 20
 }
 
 // Process level up
-export function processLevelUp(character) {
+function processLevelUp(character) {
   const newLevel = character.level + 1
   const conMod = getAbilityModifier(character.constitution)
   
@@ -239,3 +240,18 @@ export function processLevelUp(character) {
     hpGained: hpGain,
   }
 }
+
+// Exports
+module.exports = {
+  rollDice,
+  rollD20,
+  performStatCheck,
+  attackRoll,
+  calculateDamage,
+  rollInitiative,
+  calculateAC,
+  applyEffects,
+  getXPForLevel,
+  checkLevelUp,
+  processLevelUp,
+};

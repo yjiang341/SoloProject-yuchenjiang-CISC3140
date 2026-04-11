@@ -1,126 +1,60 @@
-# Frontend Components (`/components`)
+# Components
 
-This directory contains all React UI components for **Truth of Abyss**.
+All React UI components.
 
-## Directory Structure
+## Structure
 
 ```
 components/
-├── ui/                 # shadcn/ui base components
+├── ui/             # shadcn/ui base components
 │   ├── button.tsx
 │   ├── card.tsx
 │   ├── input.tsx
 │   ├── progress.tsx
-│   └── ...             # Other shadcn components
+│   ├── dialog.tsx
+│   └── ...         # ~40+ shadcn components
 │
-└── game/               # Game-specific components
-    ├── game-sidebar.jsx    # Character stats sidebar
-    ├── event-panel.jsx     # Story event display
-    ├── combat-panel.jsx    # Combat interface
-    └── inventory-panel.jsx # Bag/inventory management
+├── game/           # Components used by the authenticated GamePage
+│   ├── game-sidebar.jsx
+│   ├── event-panel.jsx
+│   ├── combat-panel.jsx
+│   └── inventory-panel.jsx
+│
+├── guest/          # Self-contained guest mode pages
+│   ├── create/
+│   │   └── page.jsx    # Guest character creation wizard
+│   └── play/
+│       └── page.jsx    # Guest gameplay
+│
+└── theme-provider.tsx  # (Legacy — not currently used)
 ```
 
-## Game Components
+## `ui/` — shadcn/ui Components
 
-### `GameSidebar`
-Persistent sidebar showing:
-- Character name, race, class, level
-- HP/MP bars with visual progress
-- Combat stats (Attack, Defense)
-- Ability scores with modifiers
-- Gold and experience
-- Play time tracker
-- Quick actions (inventory, logout)
+Pre-built, customizable components from [shadcn/ui](https://ui.shadcn.com/). These are `.tsx` files that use Tailwind CSS and the theme CSS variables defined in `globals.css`. They are imported by both game and guest components.
 
-**Props:**
-```javascript
-{
-  character: Object,      // Character data
-  inventory: Array,       // Inventory items
-  gameTime: Number,       // Seconds played
-  isOpen: Boolean,        // Mobile sidebar state
-  onClose: Function,      // Close handler
-  onViewInventory: Function // Open inventory
-}
-```
+Common ones: `Button`, `Card`, `Input`, `Label`, `Progress`, `Dialog`, `Select`, `Tabs`, `Badge`.
 
-### `EventPanel`
-Main story display showing:
-- Event title and description
-- Available choices as buttons
-- Stat check badges (shows DC and modifier)
-- Check result display (success/failure)
-- Combat and condition badges
+## `game/` — Authenticated Game Components
 
-**Props:**
-```javascript
-{
-  event: Object,          // Current event data
-  options: Array,         // Available choices
-  onChoice: Function,     // Choice handler
-  checkResult: Object,    // Last stat check result
-  character: Object       // For modifier calculations
-}
-```
+Used by `GamePage.jsx`. These components call the backend API through `@/lib/api.js` and `@/lib/game-mechanics.js`.
 
-### `CombatPanel`
-Turn-based combat interface:
-- Player and enemy stat blocks
-- HP bars for both sides
-- Combat log with color coding
-- Attack and flee actions
-- Victory/defeat states
+See [game/README.md](game/README.md) for details.
 
-**Props:**
-```javascript
-{
-  character: Object,
-  combatData: Object,     // Enemy info from event
-  inventory: Array,       // For AC calculation
-  onCombatEnd: Function,  // Victory/defeat handler
-  onCharacterUpdate: Function // HP updates
-}
-```
+## `guest/` — Guest Mode Pages
 
-### `InventoryPanel`
-Item management:
-- Grouped by item type
-- Equip/unequip for weapons/armor
-- Item quantities
-- Drop functionality
-- Item properties display
+Fully self-contained pages that use `localStorage` and local utilities (`@/lib/guest-config.js`, `@/lib/guest-utils.js`) with no backend dependency.
 
-**Props:**
-```javascript
-{
-  inventory: Array,
-  character: Object,
-  onInventoryUpdate: Function,
-  onClose: Function
-}
-```
+See [guest/README.md](guest/README.md) for details.
 
-## Styling
+## Theme
 
-All components use:
-- Tailwind CSS for styling
-- CSS custom properties from `globals.css`
-- Dark gothic theme colors:
-  - `--primary`: Crimson red
-  - `--health`: Green HP bar
-  - `--mana`: Blue MP bar
-  - `--accent`: Gold for rewards
-  - `--destructive`: Blood red for danger
+All components use a dark gothic fantasy theme via CSS custom variables:
 
-## Usage
-
-```jsx
-import GameSidebar from '@/components/game/game-sidebar'
-import EventPanel from '@/components/game/event-panel'
-import CombatPanel from '@/components/game/combat-panel'
-import InventoryPanel from '@/components/game/inventory-panel'
-
-// In your game pages
-<GameSidebar character={character} ... />
-<EventPanel event={currentEvent} ... />
-```
+| Variable         | Color               | Usage                |
+|------------------|---------------------|----------------------|
+| `--primary`      | Crimson red         | Headings, accents    |
+| `--accent`       | Gold                | Rewards, gold count  |
+| `--destructive`  | Blood red           | Damage, danger       |
+| `--secondary`    | Muted purple        | Backgrounds          |
+| `--muted`        | Dark gray           | Disabled/secondary   |

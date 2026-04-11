@@ -1,16 +1,82 @@
-# React + Vite
+# Frontend — React + Vite SPA
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Single-page application for Truth of Abyss. Built with React 19, Vite 7, Tailwind CSS v4, and React Router DOM.
 
-Currently, two official plugins are available:
+## Directory Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```
+frontend/
+├── index.html              # HTML entry point
+├── vite.config.js          # Vite config (React SWC, Tailwind plugin, path aliases)
+├── package.json
+├── src/
+│   ├── main.jsx            # React root — BrowserRouter + global CSS imports
+│   ├── App.jsx             # Renders <AppRoutes />
+│   ├── routes/
+│   │   └── AppRoutes.jsx   # All route definitions (React Router <Routes>)
+│   ├── pages/              # Route-level page components
+│   ├── components/
+│   │   ├── ui/             # shadcn/ui base components (Button, Card, Input, etc.)
+│   │   ├── game/           # Game-specific components (sidebar, event, combat, inventory)
+│   │   └── guest/          # Guest mode pages (create, play)
+│   ├── lib/
+│   │   ├── api.js          # HTTP client for backend REST API
+│   │   ├── supabase/
+│   │   │   └── client.js   # Browser Supabase client (auth only)
+│   │   ├── guest-config.js # Static game data for guest mode (races, classes, events)
+│   │   ├── guest-utils.js  # Dice/stat utilities for guest mode
+│   │   └── game-mechanics.js # Local game calculations (dice, combat, AC)
+│   └── styles/
+│       ├── globals.css     # Tailwind import + theme CSS variables
+│       ├── index.css       # Base font/color defaults
+│       ├── HomePage.css    # Gothic theme overrides
+│       └── App.css         # App-level styles
+```
 
-## React Compiler
+## Running
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+```bash
+npm install
+npm run dev      # Vite dev server on port 5173
+npm run build    # Production build to dist/
+npm run preview  # Preview production build
+```
 
-## Expanding the ESLint configuration
+## Environment Variables
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Create a `.env.local` file:
+
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key
+VITE_API_URL=http://localhost:3000/api
+```
+
+## Path Aliases
+
+Configured in `vite.config.js`:
+
+| Alias           | Maps to        |
+|-----------------|----------------|
+| `@`             | `./src`        |
+| `@/components`  | `./src/components` |
+| `@/lib`         | `./src/lib`    |
+| `@/pages`       | `./src/pages`  |
+| `@/styles`      | `./src/styles` |
+
+## Key Libraries
+
+| Package            | Purpose                    |
+|--------------------|----------------------------|
+| `react-router-dom` | Client-side routing        |
+| `@supabase/ssr`    | Browser Supabase client    |
+| `tailwindcss` + `@tailwindcss/vite` | Styling (v4) |
+| `@mui/material`    | Some UI components         |
+| `lucide-react`     | Icons                      |
+
+## How It Works
+
+1. `main.jsx` wraps `<App>` in `<BrowserRouter>` and imports global CSS
+2. `App.jsx` renders `<AppRoutes>` which maps URL paths to page components
+3. **Authenticated pages** use `lib/api.js` to call the backend Express API and `lib/supabase/client.js` for auth
+4. **Guest pages** use `lib/guest-config.js` (static data) and `lib/guest-utils.js` (dice/stats) with `localStorage` — no backend required

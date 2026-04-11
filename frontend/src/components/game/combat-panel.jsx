@@ -1,19 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from 'frontend/src/components/ui/card'
-import { Button } from 'frontend/src/components/ui/button'
-import { Progress } from 'frontend/src/components/ui/progress'
-import { Badge } from 'frontend/src/components/ui/badge'
-import { updateCharacter } from 'backend/services/character-service'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { Badge } from '@/components/ui/badge'
+import { updateCharacter } from '@/lib/api'
 import { 
-  rollDice, 
+  rollInitiative, 
   attackRoll, 
   calculateDamage, 
-  rollInitiative,
-  calculateAC 
-} from 'backend/services/game-engine'
-import { getAbilityModifier } from 'backend/services/dnd-api'
+  calculateAC,
+  rollDiceLocal,
+  getAbilityModifierLocal
+} from '@/lib/game-mechanics'
 import { Sword, Shield, Heart, Zap, RotateCcw } from 'lucide-react'
 
 // Simple enemy templates
@@ -78,14 +78,14 @@ export default function CombatPanel({
     
     // Roll initiative
     const playerInit = rollInitiative(character)
-    const enemyInit = rollDice('1d20')
+    const enemyInit = rollDiceLocal('1d20')
     
-    const playerGoesFirst = playerInit.total >= enemyInit.total
+    const playerGoesFirst = playerInit.total >= enemyInit.roll
     setPlayerTurn(playerGoesFirst)
     
     setCombatLog(prev => [
       ...prev,
-      `Initiative: You rolled ${playerInit.total}, enemy rolled ${enemyInit.total}`,
+      `Initiative: You rolled ${playerInit.total}, enemy rolled ${enemyInit.roll}`,
       playerGoesFirst ? 'You act first!' : 'The enemy acts first!'
     ])
     
@@ -109,10 +109,12 @@ export default function CombatPanel({
     addLog(`You attack! Roll: ${attack.roll} + ${attack.modifier} = ${attack.total}`)
     
     if (attack.total >= enemy.ac) {
-      const damage = calculateDamage(character, null, attack.isCrit)
-      const totalDamage = damage.total
+      const isCrit = attack.isCritical()
+      const weaponDamage = '1d6' // Default weapon damage
+      const damage = calculateDamage(character, weaponDamage)
+      const totalDamage = isCrit ? damage.total * 2 : damage.total
       
-      addLog(attack.isCrit 
+      addLog(isCrit 
         ? `CRITICAL HIT! You deal ${totalDamage} damage!` 
         : `Hit! You deal ${totalDamage} damage!`)
       
@@ -137,16 +139,16 @@ export default function CombatPanel({
     const playerAC = calculateAC(character, inventory)
     
     // Enemy attacks
-    const enemyAttack = rollDice('1d20')
-    const enemyTotal = enemyAttack.total + currentEnemy.attack
+    const enemyAttack = rollDiceLocal('1d20')
+    const enemyTotal = enemyAttack.roll + currentEnemy.attack
     
-    addLog(`${currentEnemy.name} attacks! Roll: ${enemyAttack.rolls[0]} + ${currentEnemy.attack} = ${enemyTotal}`)
+    addLog(`${currentEnemy.name} attacks! Roll: ${enemyAttack.roll} + ${currentEnemy.attack} = ${enemyTotal}`)
     
     if (enemyTotal >= playerAC) {
-      const damage = rollDice(currentEnemy.damage)
-      const totalDamage = damage.total
+      const damage = rollDiceLocal(currentEnemy.damage)
+      const totalDamage = damage.roll
       
-      addLog(enemyAttack.natural20 
+      addLog(enemyAttack.roll === 20 
         ? `CRITICAL HIT! ${currentEnemy.name} deals ${totalDamage} damage to you!`
         : `Hit! ${currentEnemy.name} deals ${totalDamage} damage to you!`)
       
@@ -171,12 +173,12 @@ export default function CombatPanel({
   async function handleFlee() {
     if (!playerTurn || combatOver) return
     
-    const dexMod = getAbilityModifier(character.dexterity)
-    const fleeRoll = rollDice('1d20')
-    const fleeTotal = fleeRoll.total + dexMod
+    const dexMod = getAbilityModifierLocal(character.dexterity)
+    const fleeRoll = rollDiceLocal('1d20')
+    const fleeTotal = fleeRoll.roll + dexMod
     const fleeDC = combatData.flee_dc || 12
     
-    addLog(`Attempting to flee! Roll: ${fleeRoll.rolls[0]} + ${dexMod} = ${fleeTotal} vs DC ${fleeDC}`)
+    addLog(`Attempting to flee! Roll: ${fleeRoll.roll} + ${dexMod} = ${fleeTotal} vs DC ${fleeDC}`)
     
     if (fleeTotal >= fleeDC) {
       addLog('You successfully escape!')
