@@ -97,16 +97,20 @@ export default function GuestPlayPage() {
       if (!success && option.failureEvent) {
         const failEvent = EVENTS_DATA[option.failureEvent]
         if (failEvent) {
-          setCurrentEvent(failEvent)
-          setGameState(prev => ({
-            ...prev,
+          const failGameState = {
+            ...gameState,
             currentEventId: option.failureEvent,
-            eventHistory: [...prev.eventHistory, { 
-              eventId: gameState.currentEventId, 
+            eventHistory: [...gameState.eventHistory, {
+              eventId: gameState.currentEventId,
               choice: index,
-              checkResult 
+              checkResult
             }]
-          }))
+          }
+          setCurrentEvent(failEvent)
+          setGameState(failGameState)
+          // Auto-save with correct new state before returning
+          localStorage.setItem('guestCharacter', JSON.stringify(character))
+          localStorage.setItem('guestGameState', JSON.stringify(failGameState))
           return
         }
       }
@@ -135,29 +139,31 @@ export default function GuestPlayPage() {
     }
 
     // Move to next event
+    let newGameState = gameState
     if (option.next_event) {
       const nextEvent = EVENTS_DATA[option.next_event]
       if (nextEvent) {
         setCurrentEvent(nextEvent)
-        setGameState(prev => ({
-          ...prev,
+        newGameState = {
+          ...gameState,
           currentEventId: option.next_event,
-          eventHistory: [...prev.eventHistory, { 
-            eventId: gameState.currentEventId, 
+          eventHistory: [...gameState.eventHistory, {
+            eventId: gameState.currentEventId,
             choice: index,
-            checkResult 
+            checkResult
           }]
-        }))
+        }
+        setGameState(newGameState)
       } else {
         setMessage({ type: 'info', text: 'This path leads deeper... (Coming soon)' })
       }
     }
 
     setCharacter(newCharacter)
-    
-    // Auto-save after each action
+
+    // Auto-save after each action (use local newGameState to avoid stale closure)
     localStorage.setItem('guestCharacter', JSON.stringify(newCharacter))
-    localStorage.setItem('guestGameState', JSON.stringify(gameState))
+    localStorage.setItem('guestGameState', JSON.stringify(newGameState))
   }
 
   // Reset game
@@ -231,6 +237,9 @@ export default function GuestPlayPage() {
             <Button variant="outline" size="sm" onClick={saveGame}>
               <Save className="w-4 h-4 mr-2" /> Save
             </Button>
+            {message && message.type === 'success' && (
+              <span className="text-xs text-green-400 font-medium">{message.text}</span>
+            )}
           </div>
         </div>
       </header>

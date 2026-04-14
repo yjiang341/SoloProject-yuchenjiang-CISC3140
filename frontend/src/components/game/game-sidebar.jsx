@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { getAbilityModifier, formatModifier } from '@/lib/api'
 import { 
   Heart, 
   Sparkles, 
@@ -25,6 +24,14 @@ function formatTime(seconds) {
     return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
   return `${minutes}:${secs.toString().padStart(2, '0')}`
+}
+
+function getAbilityModifier(score) {
+  return Math.floor((score - 10) / 2)
+}
+
+function formatModifier(modifier) {
+  return modifier >= 0 ? `+${modifier}` : `${modifier}`
 }
 
 export default function GameSidebar({ 

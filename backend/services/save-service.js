@@ -13,7 +13,7 @@ async function createSave(userId, characterId, saveName, gameState = {}) {
     user_id: userId,
     character_id: characterId,
     save_name: saveName,
-    current_event_id: gameState.currentEventId || 'start_awakening',
+    current_event_id: gameState.currentEventId || 'start_001',
     game_time_seconds: gameState.gameTime || 0,
     game_state: {
       eventHistory: gameState.eventHistory || [],
