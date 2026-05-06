@@ -1,8 +1,13 @@
 import AppRoutes from './routes/AppRoutes.jsx';
+import SiteNavbar from '@/components/navigation/site-navbar.jsx'
+
 const App = () => {
   return (
     <>
-      <AppRoutes/>
+      <SiteNavbar />
+      <main className="app-main-content">
+        <AppRoutes />
+      </main>
     </>
   )
 }

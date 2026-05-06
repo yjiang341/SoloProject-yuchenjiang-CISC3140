@@ -25,6 +25,14 @@ Creates a database trigger that automatically inserts a row into `profiles` when
 
 Populates the `events` table with the initial dungeon story content — the same events available in guest mode via `EVENTS_DATA`.
 
+### `004_user_profile_avatar.sql`
+
+Ensures profile account fields and avatar storage are configured:
+
+- Adds/ensures `profiles.avatar_url` and profile RLS policies
+- Creates `avatars` Storage bucket (2MB limit, image mime types)
+- Adds Storage policies so each authenticated user can manage files only in their own folder (`<user-id>/...`)
+
 ## Running
 
 Execute each script in the Supabase Dashboard SQL Editor in numeric order, or use the Supabase CLI:

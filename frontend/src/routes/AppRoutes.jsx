@@ -7,6 +7,7 @@ import SignupPage from "../pages/SignUpPage.jsx";
 import SignUpSuccessPage from "../pages/SignUpSuccessPage.jsx";
 import CharaCreatePage from "../pages/CharaCreatePage.jsx";
 import CharacterSelectPage from "../pages/CharacterSelectPage.jsx";
+import UserProfilePage from "../pages/userProfile.jsx";
 import ErrorPage from "../pages/ErrorPage.jsx";
 import GuestCreatePage from "../components/guest/create/page.jsx";
 import GuestPlayPage from "../components/guest/play/page.jsx";
@@ -21,6 +22,7 @@ function AppRoutes() {
             <Route path="/auth/sign-up-success" element={<SignUpSuccessPage />} />
             <Route path="/character/create" element={<CharaCreatePage />} />
             <Route path="/character" element={<CharacterSelectPage />} />
+            <Route path="/user/profile" element={<UserProfilePage />} />
             <Route path="/guest/create" element={<GuestCreatePage />} />
             <Route path="/guest/play" element={<GuestPlayPage />} />
             <Route path="*" element={<ErrorPage />} />

@@ -1,0 +1,96 @@
+@reference "./globals.css";
+
+.user-profile-page {
+  min-height: calc(100vh - var(--site-navbar-height));
+  background:
+    radial-gradient(circle at 12% 18%, color-mix(in oklch, var(--primary) 18%, transparent 82%), transparent 46%),
+    radial-gradient(circle at 90% 80%, color-mix(in oklch, var(--accent) 14%, transparent 86%), transparent 48%),
+    var(--background);
+  padding: 2rem 1rem 3rem;
+}
+
+.user-profile-content {
+  width: min(980px, 100%);
+  margin: 0 auto;
+}
+
+.user-profile-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 2.7rem);
+  color: var(--foreground);
+}
+
+.user-profile-subtitle {
+  margin: 0.4rem 0 1.4rem;
+  color: var(--muted-foreground);
+}
+
+.user-profile-alert {
+  border-radius: 0.7rem;
+  padding: 0.65rem 0.9rem;
+  margin-bottom: 0.9rem;
+  border: 1px solid;
+}
+
+.user-profile-error {
+  border-color: color-mix(in oklch, var(--destructive) 45%, transparent 55%);
+  background-color: color-mix(in oklch, var(--destructive) 12%, transparent 88%);
+}
+
+.user-profile-success {
+  border-color: color-mix(in oklch, var(--success) 45%, transparent 55%);
+  background-color: color-mix(in oklch, var(--success) 11%, transparent 89%);
+}
+
+.user-profile-card {
+  margin-bottom: 1rem;
+}
+
+.user-profile-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-profile-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.user-profile-avatar {
+  width: 5.75rem;
+  height: 5.75rem;
+  border-radius: 999px;
+  border: 2px solid color-mix(in oklch, var(--accent) 42%, transparent 58%);
+  object-fit: cover;
+  background-color: color-mix(in oklch, var(--card) 86%, black 14%);
+}
+
+.user-profile-hidden-input {
+  display: none;
+}
+
+.user-profile-help {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.92rem;
+}
+
+.user-profile-inline-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+}
+
+@media (max-width: 720px) {
+  .user-profile-inline-form {
+    grid-template-columns: 1fr;
+  }
+
+  .user-profile-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

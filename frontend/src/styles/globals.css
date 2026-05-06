@@ -6,6 +6,10 @@
 :root {
   /* Dark gothic fantasy theme by default */
   --background: oklch(18.052% 0.01226 285.092);
+  --app-page-background:
+    radial-gradient(circle at 12% 18%, color-mix(in oklch, var(--primary) 18%, transparent 82%), transparent 46%),
+    radial-gradient(circle at 90% 80%, color-mix(in oklch, var(--accent) 14%, transparent 86%), transparent 48%),
+    var(--background);
   --foreground: oklch(0.92 0.02 60);
   --card: oklch(0.15 0.015 280);
   --card-foreground: oklch(0.92 0.02 60);
@@ -138,8 +142,9 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
     margin: 0;
+    background: var(--app-page-background);
   }
   /* Override MUI Paper/Card default white background & black text */
   .MuiPaper-root {
@@ -153,4 +158,29 @@
   .MuiFormLabel-root {
     color: inherit !important;
   }
+
+  button,
+  .MuiButton-root {
+    font-family: 'Cinzel', 'Palatino Linotype', 'Book Antiqua', 'Palatino', serif;
+    letter-spacing: 0.03em;
+  }
+
+  .MuiButton-root {
+    border-radius: 0.55rem;
+  }
+}
+
+/* Keep page-level backgrounds consistent with user profile backdrop */
+.home-page,
+.login-page,
+.signup-page,
+.signup-success-page,
+.chara-create-page,
+.character-select-page,
+.error-page,
+.game-page,
+.user-profile-page,
+.game-loading,
+.character-select-loading {
+  background: var(--app-page-background) !important;
 }
