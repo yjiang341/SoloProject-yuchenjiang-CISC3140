@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase/client'
 import { getUserCharacters, deleteCharacter } from '@/lib/api'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -57,6 +57,13 @@ export default function CharacterSelectPage() {
     setDeleteTarget(null)
   }
 
+  function formatDisplayText(value, fallback) {
+    if (!value || typeof value !== 'string') return fallback
+    return value
+      .replace(/[-_]/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase())
+  }
+
   if (loading) {
     return (
       <div className="character-select-loading">
@@ -95,12 +102,14 @@ export default function CharacterSelectPage() {
           {/* Existing Characters */}
           {characters.map(char => (
             <Card key={char.id} className="character-select-char-card">
-              <CardHeader className="pb-3">
+              <div className="character-select-char-header">
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-xl font-heading text-primary">{char.name}</CardTitle>
-                    <CardDescription className="capitalize">
-                      Level {char.level} {char.race} {char.class}
+                    <CardTitle className="character-select-char-name">
+                      {char.name || 'Unnamed Character'}
+                    </CardTitle>
+                    <CardDescription className="character-select-char-meta">
+                      {formatDisplayText(char.race, 'Unknown Race')} - {formatDisplayText(char.class, 'Unknown Class')}
                     </CardDescription>
                   </div>
                   <Button
@@ -112,7 +121,7 @@ export default function CharacterSelectPage() {
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
-              </CardHeader>
+              </div>
               <CardContent>
                 <div className="character-select-char-stats">
                   <div className="flex items-center gap-1">

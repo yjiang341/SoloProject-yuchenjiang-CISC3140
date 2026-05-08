@@ -5,12 +5,8 @@
   @apply min-h-screen bg-background flex;
 }
 
-.game-sidebar-toggle {
-  @apply fixed top-4 left-4 z-50 lg:hidden;
-}
-
 .game-main {
-  @apply flex-1 lg:ml-80;
+  @apply flex-1 ml-80;
 }
 
 .game-main-content {

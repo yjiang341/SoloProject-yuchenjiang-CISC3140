@@ -15,8 +15,6 @@ import GameSidebar from '@/components/game/game-sidebar'
 import EventPanel from '@/components/game/event-panel'
 import CombatPanel from '@/components/game/combat-panel'
 import InventoryPanel from '@/components/game/inventory-panel'
-import { Button } from '@/components/ui/button'
-import { Menu, X } from 'lucide-react'
 import '@/styles/GamePage.css'
 
 // Fallback events (from backend services config)
@@ -51,7 +49,6 @@ function GameContent() {
   const [gameMode, setGameMode] = useState('story') // 'story', 'combat', 'inventory'
   const [combatData, setCombatData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [gameTime, setGameTime] = useState(0)
 
   function addMessage(text, type = 'info') {
@@ -298,23 +295,11 @@ function GameContent() {
 
   return (
     <div className="game-page">
-      {/* Mobile sidebar toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="game-sidebar-toggle"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? <X /> : <Menu />}
-      </Button>
-
       {/* Sidebar */}
       <GameSidebar
         character={character}
         inventory={inventory}
         gameTime={gameTime}
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
         onViewInventory={() => setGameMode(gameMode === 'inventory' ? 'story' : 'inventory')}
       />
 

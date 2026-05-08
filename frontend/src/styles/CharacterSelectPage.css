@@ -51,6 +51,18 @@
   @apply border-border/50 bg-card/80 backdrop-blur hover:border-primary/30 transition-colors;
 }
 
+.character-select-char-header {
+  @apply px-6 pt-6 pb-2;
+}
+
+.character-select-char-name {
+  @apply text-xl font-heading text-primary;
+}
+
+.character-select-char-meta {
+  @apply mt-1 text-muted-foreground;
+}
+
 .character-select-char-stats {
   @apply grid grid-cols-4 gap-2 mb-4 text-sm;
 }
