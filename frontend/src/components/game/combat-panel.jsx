@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -11,50 +11,14 @@ import {
   attackRoll, 
   calculateDamage, 
   calculateAC,
+  getAttackModifier,
+  getDamageRange,
+  getEquippedWeaponDamage,
   rollDiceLocal,
   getAbilityModifierLocal
 } from '@/lib/game-mechanics'
+import { ENEMY_STATS } from '@/lib/enemy-balance'
 import { Sword, Shield, Heart, Zap, RotateCcw } from 'lucide-react'
-
-// Simple enemy templates
-const ENEMIES = {
-  dungeon_guard: {
-    name: 'Dungeon Guard',
-    hp: 22,
-    ac: 13,
-    attack: 4,
-    damage: '1d6+2',
-    xp: 50,
-    gold: 15,
-  },
-  dungeon_guards_pair: {
-    name: 'Dungeon Guards',
-    hp: 44,
-    ac: 13,
-    attack: 4,
-    damage: '2d6+2',
-    xp: 100,
-    gold: 30,
-  },
-  giant_rat: {
-    name: 'Giant Rat',
-    hp: 7,
-    ac: 12,
-    attack: 2,
-    damage: '1d4+1',
-    xp: 25,
-    gold: 0,
-  },
-  skeleton: {
-    name: 'Skeleton',
-    hp: 13,
-    ac: 13,
-    attack: 4,
-    damage: '1d6+2',
-    xp: 50,
-    gold: 5,
-  },
-}
 
 export default function CombatPanel({ 
   character, 
@@ -63,54 +27,165 @@ export default function CombatPanel({
   onCombatEnd,
   onCharacterUpdate 
 }) {
-  const [enemy, setEnemy] = useState(null)
-  const [enemyHp, setEnemyHp] = useState(0)
-  const [playerTurn, setPlayerTurn] = useState(true)
-  const [combatLog, setCombatLog] = useState([])
-  const [combatOver, setCombatOver] = useState(false)
+  const enemy = useMemo(() => {
+    const baseEnemy = ENEMY_STATS[combatData.enemy_id] || ENEMY_STATS.dungeon_guard
+    const recommendedLevel = combatData.recommended_level || character.level || 1
+    const levelGap = recommendedLevel - (character.level || 1)
+    const scale = Math.max(0.7, Math.min(1.4, 1 + (levelGap * 0.12)))
 
-  useEffect(() => {
-    // Initialize combat
-    const enemyTemplate = ENEMIES[combatData.enemy_id] || ENEMIES.dungeon_guard
-    setEnemy(enemyTemplate)
-    setEnemyHp(enemyTemplate.hp)
-    setCombatLog([`Combat begins! You face ${enemyTemplate.name}!`])
-    
-    // Roll initiative
+    return {
+      ...baseEnemy,
+      ...(combatData.enemy_overrides || {}),
+      hp: Math.max(1, Math.round((combatData.enemy_overrides?.hp || baseEnemy.hp) * scale)),
+      ac: Math.max(8, Math.round((combatData.enemy_overrides?.ac || baseEnemy.ac) + (levelGap > 0 ? 1 : 0))),
+      attack: Math.max(1, Math.round((combatData.enemy_overrides?.attack || baseEnemy.attack) + (levelGap > 0 ? 1 : 0))),
+    }
+  }, [character.level, combatData])
+
+  const initiative = useMemo(() => {
     const playerInit = rollInitiative(character)
     const enemyInit = rollDiceLocal('1d20')
-    
-    const playerGoesFirst = playerInit.total >= enemyInit.roll
-    setPlayerTurn(playerGoesFirst)
-    
-    setCombatLog(prev => [
-      ...prev,
-      `Initiative: You rolled ${playerInit.total}, enemy rolled ${enemyInit.roll}`,
-      playerGoesFirst ? 'You act first!' : 'The enemy acts first!'
-    ])
-    
-    // If enemy goes first, process their turn after a delay
-    if (!playerGoesFirst) {
-      setTimeout(() => processEnemyTurn(enemyTemplate, character.hp), 1500)
+    return {
+      playerGoesFirst: playerInit.total >= enemyInit.roll,
+      playerTotal: playerInit.total,
+      enemyTotal: enemyInit.roll,
     }
-  }, [combatData, character])
+  }, [character])
 
-  function addLog(message) {
+  const [enemyHp, setEnemyHp] = useState(() => enemy.hp)
+  const [playerTurn, setPlayerTurn] = useState(() => initiative.playerGoesFirst)
+  const [combatLog, setCombatLog] = useState(() => {
+    return [
+      `Combat begins! You face ${enemy.name}!`,
+      `Initiative: You rolled ${initiative.playerTotal}, enemy rolled ${initiative.enemyTotal}`,
+      initiative.playerGoesFirst ? 'You act first!' : 'The enemy acts first!',
+    ]
+  })
+  const [combatOver, setCombatOver] = useState(false)
+  const enemyTurnTimeoutRef = useRef(null)
+  const characterRef = useRef(character)
+  const enemyRef = useRef(enemy)
+
+  useEffect(() => {
+    characterRef.current = character
+  }, [character])
+
+  useEffect(() => {
+    enemyRef.current = enemy
+  }, [enemy])
+
+  const addLog = useCallback((message) => {
     setCombatLog(prev => [...prev, message])
-  }
+  }, [])
+
+  const endCombat = useCallback((victory) => {
+    setCombatOver(true)
+    if (enemyTurnTimeoutRef.current) {
+      clearTimeout(enemyTurnTimeoutRef.current)
+      enemyTurnTimeoutRef.current = null
+    }
+
+    if (victory) {
+      addLog(`${enemy.name} has been defeated!`)
+
+      const rewards = {
+        gold: enemy.gold,
+        experience: enemy.xp,
+      }
+
+      // Apply rewards
+      const updatedChar = {
+        ...character,
+        gold: character.gold + rewards.gold,
+        experience: character.experience + rewards.experience,
+      }
+      onCharacterUpdate(updatedChar)
+      updateCharacter(character.id, {
+        gold: updatedChar.gold,
+        experience: updatedChar.experience,
+      }).catch(console.error)
+
+      setTimeout(() => onCombatEnd({ outcome: 'victory', rewards, skillPointsEarned: combatData.skill_points_reward || 0 }), 2000)
+    } else {
+      addLog('You have been defeated...')
+      setTimeout(() => onCombatEnd({ outcome: 'defeat', rewards: null }), 2000)
+    }
+  }, [addLog, character, enemy, onCharacterUpdate, onCombatEnd, combatData.skill_points_reward])
+
+  const processEnemyTurn = useCallback(function processEnemyTurn() {
+    try {
+      if (combatOver) return
+
+      const currentEnemy = enemyRef.current
+      const currentCharacter = characterRef.current
+      const currentPlayerHp = currentCharacter.hp
+
+      const playerAC = calculateAC(currentCharacter, inventory)
+
+      // Enemy attacks
+      const enemyAttack = rollDiceLocal('1d20')
+      const enemyTotal = enemyAttack.roll + currentEnemy.attack
+
+      addLog(`${currentEnemy.name} attacks! Roll: ${enemyAttack.roll} + ${currentEnemy.attack} = ${enemyTotal}`)
+
+      if (enemyTotal >= playerAC) {
+        const damage = rollDiceLocal(currentEnemy.damage)
+        const totalDamage = damage.roll
+
+        addLog(enemyAttack.roll === 20
+          ? `CRITICAL HIT! ${currentEnemy.name} deals ${totalDamage} damage to you!`
+          : `Hit! ${currentEnemy.name} deals ${totalDamage} damage to you!`)
+
+        const newPlayerHp = Math.max(0, currentPlayerHp - totalDamage)
+
+        // Update character HP
+        const updatedChar = { ...currentCharacter, hp: newPlayerHp }
+        onCharacterUpdate(updatedChar)
+        updateCharacter(currentCharacter.id, { hp: newPlayerHp }).catch(console.error)
+
+        if (newPlayerHp <= 0) {
+          endCombat(false)
+          return
+        }
+      } else {
+        addLog(`${currentEnemy.name}'s attack misses!`)
+      }
+
+      setPlayerTurn(true)
+    } catch (error) {
+      console.error('Enemy turn failed:', error)
+      addLog('Enemy hesitates in confusion. Your turn!')
+      setPlayerTurn(true)
+    }
+  }, [combatOver, endCombat, inventory, onCharacterUpdate, addLog])
+
+  useEffect(() => {
+    if (!playerTurn && !combatOver) {
+      enemyTurnTimeoutRef.current = setTimeout(() => {
+        processEnemyTurn()
+        enemyTurnTimeoutRef.current = null
+      }, 900)
+      return () => {
+        if (enemyTurnTimeoutRef.current) {
+          clearTimeout(enemyTurnTimeoutRef.current)
+          enemyTurnTimeoutRef.current = null
+        }
+      }
+    }
+    return undefined
+  }, [playerTurn, combatOver, processEnemyTurn])
 
   async function handleAttack() {
     if (!playerTurn || combatOver) return
     
-    const playerAC = calculateAC(character, inventory)
-    
     // Player attacks
-    const attack = attackRoll(character)
+    const equipmentAttackBonus = getAttackModifier(character, inventory) - (typeof character.attack === 'number' ? character.attack : getAbilityModifierLocal(character.strength || 10))
+    const attack = attackRoll(character, equipmentAttackBonus)
     addLog(`You attack! Roll: ${attack.roll} + ${attack.modifier} = ${attack.total}`)
     
     if (attack.total >= enemy.ac) {
       const isCrit = attack.isCritical()
-      const weaponDamage = '1d6' // Default weapon damage
+      const weaponDamage = getEquippedWeaponDamage(inventory, '1d6')
       const damage = calculateDamage(character, weaponDamage)
       const totalDamage = isCrit ? damage.total * 2 : damage.total
       
@@ -130,44 +205,6 @@ export default function CombatPanel({
     }
     
     setPlayerTurn(false)
-    setTimeout(() => processEnemyTurn(enemy, character.hp), 1500)
-  }
-
-  function processEnemyTurn(currentEnemy, currentPlayerHp) {
-    if (combatOver) return
-    
-    const playerAC = calculateAC(character, inventory)
-    
-    // Enemy attacks
-    const enemyAttack = rollDiceLocal('1d20')
-    const enemyTotal = enemyAttack.roll + currentEnemy.attack
-    
-    addLog(`${currentEnemy.name} attacks! Roll: ${enemyAttack.roll} + ${currentEnemy.attack} = ${enemyTotal}`)
-    
-    if (enemyTotal >= playerAC) {
-      const damage = rollDiceLocal(currentEnemy.damage)
-      const totalDamage = damage.roll
-      
-      addLog(enemyAttack.roll === 20 
-        ? `CRITICAL HIT! ${currentEnemy.name} deals ${totalDamage} damage to you!`
-        : `Hit! ${currentEnemy.name} deals ${totalDamage} damage to you!`)
-      
-      const newPlayerHp = Math.max(0, currentPlayerHp - totalDamage)
-      
-      // Update character HP
-      const updatedChar = { ...character, hp: newPlayerHp }
-      onCharacterUpdate(updatedChar)
-      updateCharacter(character.id, { hp: newPlayerHp }).catch(console.error)
-      
-      if (newPlayerHp <= 0) {
-        endCombat(false)
-        return
-      }
-    } else {
-      addLog(`${currentEnemy.name}'s attack misses!`)
-    }
-    
-    setPlayerTurn(true)
   }
 
   async function handleFlee() {
@@ -183,47 +220,17 @@ export default function CombatPanel({
     if (fleeTotal >= fleeDC) {
       addLog('You successfully escape!')
       setCombatOver(true)
-      setTimeout(() => onCombatEnd(false, null), 1500)
+      setTimeout(() => onCombatEnd({ outcome: 'fled', rewards: null }), 1500)
     } else {
       addLog('You failed to escape!')
       setPlayerTurn(false)
-      setTimeout(() => processEnemyTurn(enemy, character.hp), 1500)
     }
   }
-
-  function endCombat(victory) {
-    setCombatOver(true)
-    
-    if (victory) {
-      addLog(`${enemy.name} has been defeated!`)
-      
-      const rewards = {
-        gold: enemy.gold,
-        experience: enemy.xp,
-      }
-      
-      // Apply rewards
-      const updatedChar = {
-        ...character,
-        gold: character.gold + rewards.gold,
-        experience: character.experience + rewards.experience,
-      }
-      onCharacterUpdate(updatedChar)
-      updateCharacter(character.id, { 
-        gold: updatedChar.gold, 
-        experience: updatedChar.experience 
-      }).catch(console.error)
-      
-      setTimeout(() => onCombatEnd(true, rewards), 2000)
-    } else {
-      addLog('You have been defeated...')
-      setTimeout(() => onCombatEnd(false, null), 2000)
-    }
-  }
-
-  if (!enemy) return null
 
   const playerAC = calculateAC(character, inventory)
+  const playerAttack = getAttackModifier(character, inventory)
+  const weaponDamage = getEquippedWeaponDamage(inventory, '1d6')
+  const playerDamageRange = getDamageRange(character, inventory, weaponDamage)
   const enemyHpPercent = (enemyHp / enemy.hp) * 100
   const playerHpPercent = (character.hp / character.max_hp) * 100
 
@@ -262,10 +269,16 @@ export default function CombatPanel({
               </div>
               <div className="flex justify-between text-sm">
                 <span className="flex items-center gap-1">
-                  <Sword className="w-3 h-3" /> Attack
+                  <Sword className="w-3 h-3" /> Hit
                 </span>
-                <span>+{character.attack}</span>
+                <span>+{playerAttack}</span>
               </div>
+              {playerDamageRange && (
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>Damage</span>
+                  <span>{playerDamageRange.dice} {playerDamageRange.modifier >= 0 ? '+' : ''}{playerDamageRange.modifier} ({playerDamageRange.min}-{playerDamageRange.max})</span>
+                </div>
+              )}
             </div>
           </div>
 

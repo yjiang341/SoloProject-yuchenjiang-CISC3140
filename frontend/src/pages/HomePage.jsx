@@ -71,8 +71,11 @@ export default function HomePage() {
                 variant="ghost"
                 className="home-menu-btn-signout"
                 onClick={async () => {
-                  await supabase.auth.signOut()
-                  setUser(null)
+                  try {
+                    await supabase.auth.signOut()
+                  } finally {
+                    window.location.replace('/')
+                  }
                 }}
               >
                 <LogOut className="w-5 h-5 mr-3" />

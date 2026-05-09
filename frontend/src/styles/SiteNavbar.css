@@ -91,6 +91,9 @@
   font-family: 'Cinzel', serif;
   color: var(--foreground);
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.35rem 0.6rem;
   border: 1px solid color-mix(in oklch, var(--accent) 30%, transparent 70%);
   border-radius: 999px;
@@ -104,6 +107,14 @@
 .site-navbar-account:hover {
   color: var(--accent);
   border-color: color-mix(in oklch, var(--accent) 48%, transparent 52%);
+}
+
+.site-navbar-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid color-mix(in oklch, var(--accent) 40%, transparent 60%);
 }
 
 .app-main-content {

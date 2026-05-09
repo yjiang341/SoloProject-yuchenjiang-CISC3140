@@ -40,20 +40,12 @@ const CLASS_INFO = {
 
 // Calculate starting HP
 function calculateStartingHP(classIndex, constitution) {
-  const classInfo = CLASS_INFO[classIndex]
-  if (!classInfo) return 10
-  
-  const conMod = getAbilityModifier(constitution)
-  return classInfo.hitDie + conMod
+  return 50
 }
 
 // Calculate starting MP (for spellcasters)
 function calculateStartingMP(classIndex, primaryStatValue) {
-  const spellcasters = ['bard', 'cleric', 'druid', 'sorcerer', 'warlock', 'wizard']
-  if (!spellcasters.includes(classIndex)) return 0
-  
-  const mod = getAbilityModifier(primaryStatValue)
-  return Math.max(1, mod + 1) * 2
+  return 20
 }
 
 // Apply race bonuses to stats

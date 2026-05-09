@@ -9,7 +9,7 @@ import {
   createCharacter,
   getGameConfigCached,
 } from '@/lib/api'
-import { rollStat, getModifierString } from '@/lib/guest-utils'
+import { getModifierString } from '@/lib/guest-utils'
 import { ArrowLeft, ArrowRight, Check, AlertCircle, Heart, Sparkles, Sword, Shield, Dices } from 'lucide-react'
 
 const RACES = [
@@ -40,6 +40,8 @@ const CLASSES = [
 ]
 
 const STATS = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma']
+const STARTING_HP = 50
+const STARTING_MP = 20
 
 export default function CreateCharacterPage() {
   const navigate = useNavigate()
@@ -61,17 +63,15 @@ export default function CreateCharacterPage() {
     charisma: 10,
   })
   
-  // Derive remaining point-buy points directly from current stat values
-  const pointsRemaining = STATS.reduce((pts, stat) => {
-    const value = character[stat]
-    let cost = 0
-    if (value > 8) {
-      for (let i = 9; i <= value; i++) {
-        cost += i > 13 ? 2 : 1
-      }
-    }
-    return pts - cost
-  }, 27)
+  // 10 skill points, 1 point per +1 to any stat, stats start at 10
+  const TOTAL_SKILL_POINTS = 10
+  const pointsUsed = STATS.reduce((acc, s) => acc + Math.max(0, character[s] - 10), 0)
+  const pointsRemaining = TOTAL_SKILL_POINTS - pointsUsed
+  const spentPercent = Math.round((pointsUsed / TOTAL_SKILL_POINTS) * 100)
+  const allocationByStat = STATS.reduce((acc, stat) => {
+    acc[stat] = Math.max(0, character[stat] - 10)
+    return acc
+  }, {})
 
   useEffect(() => {
     const initialize = async () => {
@@ -95,17 +95,30 @@ export default function CreateCharacterPage() {
   function adjustStat(stat, delta) {
     const currentValue = character[stat]
     const newValue = currentValue + delta
-    if (newValue < 8 || newValue > 15) return
-    const cost = newValue > 13 ? 2 : 1
-    if (delta > 0 && pointsRemaining < cost) return
+    // Stats start at 10 (floor), max is 10 + TOTAL_SKILL_POINTS = 20
+    if (newValue < 10 || newValue > 20) return
+    if (delta > 0 && pointsRemaining <= 0) return
     setCharacter(prev => ({ ...prev, [stat]: newValue }))
   }
 
   function rollAllStats() {
     const rolled = {}
-    STATS.forEach(stat => { rolled[stat] = rollStat() })
+    // Reset all stats to 10 and distribute 10 random points
+    STATS.forEach(stat => { rolled[stat] = 10 })
+    const tempPoints = TOTAL_SKILL_POINTS
+    let remaining = tempPoints
+    const statsCopy = [...STATS]
+    while (remaining > 0 && statsCopy.length > 0) {
+      const idx = Math.floor(Math.random() * statsCopy.length)
+      const stat = statsCopy[idx]
+      if (rolled[stat] < 20) {
+        rolled[stat]++
+        remaining--
+      } else {
+        statsCopy.splice(idx, 1)
+      }
+    }
     setCharacter(prev => ({ ...prev, ...rolled }))
-    // pointsRemaining recomputes automatically from character state
   }
 
   function getFinalStat(stat) {
@@ -296,23 +309,64 @@ export default function CreateCharacterPage() {
           </Card>
         )}
 
-        {/* Step 4: Stat Point Buy */}
+        {/* Step 4: Skill Point Allocation */}
         {step === 4 && (
           <Card>
             <CardHeader>
               <CardTitle>Determine Your Abilities</CardTitle>
               <CardDescription>
-                Use point buy to assign your stats
-                {pointsRemaining > 0 && ` (${pointsRemaining} points remaining)`}
-                {pointsRemaining === 0 && ' — points fully spent'}
+                Distribute your skill points across your stats.{' '}
+                <span className={pointsRemaining === 0 ? 'text-primary font-bold' : 'text-amber-500 font-bold'}>
+                  {pointsRemaining > 0
+                    ? `${pointsRemaining} / ${TOTAL_SKILL_POINTS} skill points remaining`
+                    : 'All skill points spent!'}
+                </span>
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
 
-              {/* Roll button */}
+              {/* Live skill point tracker */}
+              <div className="rounded-xl border border-primary/25 bg-secondary/20 p-4">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+                  <div>
+                    <h3 className="font-heading text-base text-primary">Skill Point Tracker</h3>
+                    <p className="text-xs text-muted-foreground">Live allocation updates as you change your stats.</p>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="px-2 py-1 rounded border border-primary/40 text-primary">Used: {pointsUsed}/{TOTAL_SKILL_POINTS}</span>
+                    <span className={`px-2 py-1 rounded border ${pointsRemaining > 0 ? 'border-amber-500/60 text-amber-400' : 'border-primary/60 text-primary'}`}>
+                      Remaining: {pointsRemaining}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="h-2 rounded-full bg-muted overflow-hidden mb-4">
+                  <div
+                    className="h-full bg-primary transition-all duration-200"
+                    style={{ width: `${spentPercent}%` }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {STATS.map((stat) => {
+                    const canStillAssign = Math.max(0, Math.min(pointsRemaining, 20 - character[stat]))
+                    return (
+                      <div key={`tracker-${stat}`} className="flex items-center justify-between rounded-md border border-border/60 bg-card/40 px-3 py-2 text-sm">
+                        <span className="capitalize text-muted-foreground">{stat}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-primary font-medium">+{allocationByStat[stat]}</span>
+                          <span className="text-xs text-muted-foreground">can add {canStillAssign}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Randomize button */}
               <div className="flex justify-center">
                 <Button onClick={rollAllStats} variant="outline">
-                  <Dices className="w-4 h-4 mr-2" /> Roll All Stats (4d6 drop lowest)
+                  <Dices className="w-4 h-4 mr-2" /> Randomize Allocation
                 </Button>
               </div>
 
@@ -336,7 +390,7 @@ export default function CreateCharacterPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => adjustStat(stat, -1)}
-                          disabled={baseValue <= 8}
+                          disabled={baseValue <= 10}
                         >
                           −
                         </Button>
@@ -350,7 +404,7 @@ export default function CreateCharacterPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => adjustStat(stat, 1)}
-                          disabled={baseValue >= 15 || pointsRemaining < (baseValue >= 13 ? 2 : 1)}
+                          disabled={baseValue >= 20 || pointsRemaining <= 0}
                         >
                           +
                         </Button>
@@ -367,7 +421,7 @@ export default function CreateCharacterPage() {
                   <div><span className="text-muted-foreground">Name:</span><div className="font-medium">{character.name}</div></div>
                   <div><span className="text-muted-foreground">Race:</span><div className="font-medium">{selectedRace?.name}</div></div>
                   <div><span className="text-muted-foreground">Class:</span><div className="font-medium">{selectedClass?.name}</div></div>
-                  <div><span className="text-muted-foreground">HP:</span><div className="font-medium text-green-400">{(selectedClass?.hitDie || 10) + getLocalAbilityModifier(getFinalStat('constitution'))}</div></div>
+                  <div><span className="text-muted-foreground">HP:</span><div className="font-medium text-green-400">{STARTING_HP}</div></div>
                 </div>
               </div>
 
@@ -437,11 +491,11 @@ export default function CreateCharacterPage() {
                   <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Combat Stats</h4>
                   <div className="flex items-center gap-2">
                     <Heart className="w-4 h-4 text-red-400" />
-                    <span>HP: {(gameConfig?.classInfo[character.class]?.hitDie || selectedClass?.hitDie || 10) + getLocalAbilityModifier(getFinalStat('constitution'))}</span>
+                    <span>HP: {STARTING_HP}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-blue-400" />
-                    <span>MP: {selectedClass?.spellcaster ? Math.max(2, getLocalAbilityModifier(getFinalStat('intelligence')) + 1) * 2 : 0}</span>
+                    <span>MP: {STARTING_MP}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Sword className="w-4 h-4 text-primary" />

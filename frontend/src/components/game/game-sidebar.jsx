@@ -2,6 +2,12 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
+import {
+  getAttackModifier,
+  getDamageRange,
+  getDefenseValue,
+  getEquippedWeaponDamage,
+} from '@/lib/game-mechanics'
 import { 
   Heart, 
   Sparkles, 
@@ -12,7 +18,8 @@ import {
   Package,
   LogOut,
   Home,
-  User
+  User,
+  ShieldCheck,
 } from 'lucide-react'
 
 function formatTime(seconds) {
@@ -38,19 +45,27 @@ export default function GameSidebar({
   character, 
   inventory, 
   gameTime, 
-  onViewInventory 
+  onViewInventory,
+  onViewEquipment,
 }) {
   const navigate = useNavigate()
 
   async function handleLogout() {
-    await supabase.auth.signOut()
-    navigate('/')
+    try {
+      await supabase.auth.signOut()
+    } finally {
+      window.location.replace('/')
+    }
   }
 
   if (!character) return null
 
   const hpPercent = (character.hp / character.max_hp) * 100
   const mpPercent = character.max_mp > 0 ? (character.mp / character.max_mp) * 100 : 0
+  const derivedAttack = getAttackModifier(character, inventory)
+  const derivedDefense = getDefenseValue(character, inventory)
+  const weaponDamage = getEquippedWeaponDamage(inventory, null)
+  const damageRange = getDamageRange(character, inventory, weaponDamage || undefined)
 
   return (
     <aside className="fixed top-[var(--site-navbar-height)] left-0 h-[calc(100vh-var(--site-navbar-height))] w-80 bg-sidebar border-r border-sidebar-border z-40">
@@ -95,16 +110,23 @@ export default function GameSidebar({
           <div className="p-3 bg-sidebar-accent rounded-lg">
             <div className="flex items-center gap-2 text-sm text-sidebar-foreground/70">
               <Sword className="w-4 h-4" />
-              <span>Attack</span>
+              <span>Hit</span>
             </div>
-            <span className="text-lg font-mono">+{character.attack}</span>
+            <div className="flex flex-col">
+              <span className="text-lg font-mono">+{derivedAttack}</span>
+              {damageRange && (
+                <span className="text-xs text-sidebar-foreground/60">
+                  DMG {damageRange.dice} {damageRange.modifier >= 0 ? '+' : ''}{damageRange.modifier} ({damageRange.min}-{damageRange.max})
+                </span>
+              )}
+            </div>
           </div>
           <div className="p-3 bg-sidebar-accent rounded-lg">
             <div className="flex items-center gap-2 text-sm text-sidebar-foreground/70">
               <Shield className="w-4 h-4" />
               <span>Defense</span>
             </div>
-            <span className="text-lg font-mono">{character.defense}</span>
+            <span className="text-lg font-mono">{derivedDefense}</span>
           </div>
         </div>
 
@@ -157,6 +179,14 @@ export default function GameSidebar({
           >
             <Package className="w-4 h-4 mr-2" />
             Inventory ({inventory.length})
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start"
+            onClick={onViewEquipment}
+          >
+            <ShieldCheck className="w-4 h-4 mr-2" />
+            Equipment
           </Button>
           <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/character')}>
             <Home className="w-4 h-4 mr-2" />

@@ -4,10 +4,13 @@ import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase/client'
 import '@/styles/SiteNavbar.css'
 
-const primaryTabs = [
+const signedInTabs = [
   { label: 'Adventure', to: '/game' },
   { label: 'Characters', to: '/character' },
   { label: 'Create Hero', to: '/character/create' },
+]
+
+const guestTabs = [
   { label: 'Guest Quest', to: '/guest/create' },
 ]
 
@@ -15,6 +18,7 @@ export default function SiteNavbar() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [accountName, setAccountName] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
 
   useEffect(() => {
     let isMounted = true
@@ -24,6 +28,7 @@ export default function SiteNavbar() {
         if (isMounted) {
           setUser(null)
           setAccountName('')
+          setAvatarUrl('')
         }
         return
       }
@@ -50,12 +55,13 @@ export default function SiteNavbar() {
 
       const { data } = await supabase
         .from('profiles')
-        .select('username')
+        .select('username, avatar_url')
         .eq('id', currentUser.id)
         .maybeSingle()
 
       if (isMounted) {
         setAccountName(data?.username || fallbackName)
+        setAvatarUrl(data?.avatar_url || '')
       }
     }
 
@@ -76,11 +82,17 @@ export default function SiteNavbar() {
   }, [])
 
   async function handleLogout() {
-    await supabase.auth.signOut()
-    setUser(null)
-    setAccountName('')
-    navigate('/')
+    try {
+      await supabase.auth.signOut()
+    } finally {
+      // Force full reload so all auth-gated UI returns to guest mode immediately.
+      window.location.replace('/')
+    }
   }
+
+  const navTabs = user ? signedInTabs : guestTabs
+
+  const fallbackAvatar = `https://placehold.co/36x36/0f1724/f6cf6f?text=${encodeURIComponent((accountName || 'A').slice(0, 1).toUpperCase())}`
 
   return (
     <header className="site-navbar-wrap">
@@ -91,7 +103,7 @@ export default function SiteNavbar() {
           </NavLink>
 
           <div className="site-navbar-tabs">
-            {primaryTabs.map((tab) => (
+            {navTabs.map((tab) => (
               <NavLink
                 key={tab.to}
                 to={tab.to}
@@ -109,6 +121,11 @@ export default function SiteNavbar() {
           {user ? (
             <>
               <NavLink to="/user/profile" className="site-navbar-account">
+                <img
+                  src={avatarUrl || fallbackAvatar}
+                  alt="Account avatar"
+                  className="site-navbar-avatar"
+                />
                 {accountName}
               </NavLink>
               <Button
